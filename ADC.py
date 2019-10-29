@@ -154,13 +154,3 @@ class _Gui(DataQ_DI145):
         self.lbl["text"] = self.voltage
         self.root.update()
         self.root.after(50, self.readSensor)
-
-try:
-    s = DataQ_DI145(comm_port='COM4')
-    s.scan()
-    s.live_data()
-except:
-    pass
-
-time.sleep(5)
-s.sts()
