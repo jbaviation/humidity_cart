@@ -7,7 +7,8 @@ import time
 import sys
 import keyboard
 import threading
-from tkinter import *
+from PyQt5 import QtGui, QtCore
+
 
 import pdb
 
@@ -16,7 +17,12 @@ import pdb
 #    pip install pyserial
 #    pip install keyboard
 
-# def _datapull():
+# Create the class 'Communicate'. The instance
+# from this class shall be used later on for the
+# signal/slot mechanism.
+class Communicate(QtCore.QObject):
+    myGUI_signal = QtCore.pyqtSignal(str)
+
 
 class DataQ_DI145():
     # Declare threading variables for the class
@@ -79,18 +85,18 @@ class DataQ_DI145():
             self.t1.join()
             print('Thread stopped')
         except:
-            print('Could NOT stop thread')
+            # print('Could NOT stop thread')
+            pass
 
 
     def _run(self):
         ''' Meant to run as a thread for taking voltage and counts from the ADC device'''
+        # Setup the signal-slot mechanism
+        # mySrc = Communicate()
+
+
         while True:
             try:
-                # if keyboard.is_pressed('x'):
-                #     self.serDataq.write(b'S0')
-                #     time.sleep(0.5)
-                #     self.serDataq.close()
-                #     break
 
                 if self.stop_thread:
                     break
@@ -113,6 +119,7 @@ class DataQ_DI145():
                         self.voltage = self.C1*self.counts + self.C0    # convert to voltage
                         print(self.voltage)
 
+
             except:
                 pass
 
@@ -129,28 +136,48 @@ class DataQ_DI145():
         except:
             print('Thread NOT started')
 
-        # _Gui().run()
 
 
+# import tkinter as tk
+# import queue
+# class _Gui(DataQ_DI145):
+#     def __init__(self):
+#         super()
+#         self.root = tk.Tk()
+#         self.lbl = tk.Label(self.root, text="")
+#         self.updateGUI()
+#         self.readSensor()
+#
+#     def run(self):
+#         self.lbl.pack()
+#         self.lbl.after(100, self.updateGUI)
+#         self.root.mainloop()
+#
+#     def updateGUI(self):
+#         self.root.update()
+#         self.lbl.after(100, self.updateGUI)
+#
+#     def readSensor(self):
+#         self.lbl["text"] = self.voltage
+#         self.root.update()
+#         self.root.after(50, self.readSensor)
 
-class _Gui(DataQ_DI145):
-    def __init__(self):
-        super()
-        self.root = Tk()
-        self.lbl = Label(self.root, text="")
-        self.updateGUI()
-        self.readSensor()
+# class TheWindow:
+#     def __init__(self, max_data):
+#         # Thread-safe data storage
+#         self.the_queue = queue.Queue()
+#
+#         # Main GUI object
+#         self.root = Tk()
+#
+#         # Create the data variable
+#         self.data = []
 
-    def run(self):
-        self.lbl.pack()
-        self.lbl.after(100, self.updateGUI)
-        self.root.mainloop()
-
-    def updateGUI(self):
-        self.root.update()
-        self.lbl.after(100, self.updateGUI)
-
-    def readSensor(self):
-        self.lbl["text"] = self.voltage
-        self.root.update()
-        self.root.after(50, self.readSensor)
+# class _GuiPart:
+#     def __init__(self, master, queue, endCommand):
+#         self.queue = queue
+#         # Set up the GUI
+#         console = tk.Button(master, text='Close', command=endCommand)
+#         console.pack()
+#
+#         self.data = tk.Label(console, text='')
