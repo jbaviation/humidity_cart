@@ -17,17 +17,10 @@ import pdb
 #    pip install pyserial
 #    pip install keyboard
 
-# Create the class 'Communicate'. The instance
-# from this class shall be used later on for the
-# signal/slot mechanism.
-class Communicate(QtCore.QObject):
-    myGUI_signal = QtCore.pyqtSignal(str)
 
-
-class DataQ_DI145():
-    # Declare threading variables for the class
-    # stop_thread = True
-    # t1 = None
+class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
+    # Declare signal variables for the class
+    change_value = QtCore.pyqtSignal(float)   # Code based on https://www.youtube.com/watch?v=eYJTcLBQKug
 
     def __init__(self, comm_port='COM4', baud_rate=4800, C1=0.0003, C0=0.0):
         ''' Initialize instance variable defaults for the DataQ_DI145 class
@@ -38,6 +31,8 @@ class DataQ_DI145():
             C1 - Slope coefficient of counts vs Volts (default: 0.0003 for nominal conversion)
             C0 - Offset coefficient of counts vs Volts (default: 0.0 for nominal conversion)
         '''
+        super(DataQ_DI145, self).__init__()   # Code based on https://www.youtube.com/watch?v=ivcxZSHL7jM
+
         self.comm_port = comm_port
         self.baud_rate = baud_rate
         self.C1 = C1
@@ -88,13 +83,10 @@ class DataQ_DI145():
             # print('Could NOT stop thread')
             pass
 
-
-    def _run(self):
+## Duplicate of _run for test purposes
+    @QtCore.pyqtSlot()
+    def run(self):
         ''' Meant to run as a thread for taking voltage and counts from the ADC device'''
-        # Setup the signal-slot mechanism
-        # mySrc = Communicate()
-
-
         while True:
             try:
 
@@ -117,8 +109,13 @@ class DataQ_DI145():
                         data=data<<2            # shift left 2 bits for 16-bit value
                         self.counts=data-32768       # subract 1000 0000 0000 0000 for raw ADC count
                         self.voltage = self.C1*self.counts + self.C0    # convert to voltage
-                        print(self.voltage)
+                        # print(self.voltage)
 
+                        ## Code based on https://www.youtube.com/watch?v=eYJTcLBQKug
+                        self.change_value.emit(self.voltage)
+                        #---------------------------------------------------------------------------------
+
+                        # time.sleep(0.5)
 
             except:
                 pass
@@ -129,55 +126,9 @@ class DataQ_DI145():
 
         # Start thread
         try:
-            self.t1 = threading.Thread(target=self._run)
+            self.t1 = threading.Thread(target=self.run)
             self.t1.start()
             print('Thread started')
 
         except:
             print('Thread NOT started')
-
-
-
-# import tkinter as tk
-# import queue
-# class _Gui(DataQ_DI145):
-#     def __init__(self):
-#         super()
-#         self.root = tk.Tk()
-#         self.lbl = tk.Label(self.root, text="")
-#         self.updateGUI()
-#         self.readSensor()
-#
-#     def run(self):
-#         self.lbl.pack()
-#         self.lbl.after(100, self.updateGUI)
-#         self.root.mainloop()
-#
-#     def updateGUI(self):
-#         self.root.update()
-#         self.lbl.after(100, self.updateGUI)
-#
-#     def readSensor(self):
-#         self.lbl["text"] = self.voltage
-#         self.root.update()
-#         self.root.after(50, self.readSensor)
-
-# class TheWindow:
-#     def __init__(self, max_data):
-#         # Thread-safe data storage
-#         self.the_queue = queue.Queue()
-#
-#         # Main GUI object
-#         self.root = Tk()
-#
-#         # Create the data variable
-#         self.data = []
-
-# class _GuiPart:
-#     def __init__(self, master, queue, endCommand):
-#         self.queue = queue
-#         # Set up the GUI
-#         console = tk.Button(master, text='Close', command=endCommand)
-#         console.pack()
-#
-#         self.data = tk.Label(console, text='')
