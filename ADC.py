@@ -5,17 +5,8 @@
 import serial
 import time
 import sys
-import keyboard
 import threading
 from PyQt5 import QtGui, QtCore
-
-
-import pdb
-
-#After installing Python, it may be necessary to install following modules under command prompt
-#
-#    pip install pyserial
-#    pip install keyboard
 
 
 class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
@@ -70,20 +61,11 @@ class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
         self.stop_thread = True
         try:
             self.serDataq.write(b'S0')      # stop scanning
-            self.serDataq.close()           # close connection so that port can be used
             print('Scan stopped')
         except:
             print('Could NOT stop scan the device...try re-initializing')
 
-        try:
-            self.stop_thread = True
-            self.t1.join()
-            print('Thread stopped')
-        except:
-            # print('Could NOT stop thread')
-            pass
 
-## Duplicate of _run for test purposes
     @QtCore.pyqtSlot()
     def run(self):
         ''' Meant to run as a thread for taking voltage and counts from the ADC device'''
@@ -109,26 +91,11 @@ class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
                         data=data<<2            # shift left 2 bits for 16-bit value
                         self.counts=data-32768       # subract 1000 0000 0000 0000 for raw ADC count
                         self.voltage = self.C1*self.counts + self.C0    # convert to voltage
-                        # print(self.voltage)
 
                         ## Code based on https://www.youtube.com/watch?v=eYJTcLBQKug
                         self.change_value.emit(self.voltage)
                         #---------------------------------------------------------------------------------
 
-                        # time.sleep(0.5)
 
             except:
                 pass
-
-
-    def live_data(self):
-        ''' Allows user to view live data in a new window '''
-
-        # Start thread
-        try:
-            self.t1 = threading.Thread(target=self.run)
-            self.t1.start()
-            print('Thread started')
-
-        except:
-            print('Thread NOT started')
