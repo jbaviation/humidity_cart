@@ -1,4 +1,4 @@
-''''spectra_equiv.py takes in Spectra Sensor measurements and calculates equivalent 
+''''spectra_equiv.py takes in Spectra Sensor measurements and calculates equivalent
 relative humidity and dew point.'''
 
 import CoolProp.CoolProp as cp
@@ -24,6 +24,16 @@ def vapor_pressure(mmr, p_psi):
     p_w = p_psi * mmr / (MH2O / MAIR + mmr)
 
     return p_w
+
+# Humidity ratio (aka mass mixing ratio)
+#  inputs: t       temperature in area of sample (K)
+#          t_d     dew point temperature in area of sample (K)
+#          p       pressure in area of sample (Pa)
+#  output: mmr     mass mixing ratio
+def humidity_ratio(t, t_d, p):
+    # CoolProp
+    mmr = hap.HAPropsSI('W','T',t,'D',t_d,'P',p)
+    return mmr
 
 
 # Dew Point calculation (checked and PASSED)
@@ -52,12 +62,12 @@ def dew_point(mmr, p_psi):
 #          mmr     mass mixing ratio
 #          p_psi   pressure in area of sample (psi)
 #  output: rh      relative humidity (0-100)
-def relative_humidity(t_f, mmr, p_psi):
+def relative_humidity1(t_f, mmr, p_psi):
     # Convert to SI units
     t = (t_f-32)*5/9 + 273.15   # Kelvin
     p = p_psi / (KPA2PSI/1000)  # Pascals
-    
-    # Calculate dew point (K)	
+
+    # Calculate dew point (K)
     t_d = (dew_point(mmr,p_psi)-32)*5/9 + 273.15
 
     # CoolProp
@@ -65,6 +75,16 @@ def relative_humidity(t_f, mmr, p_psi):
 
     return rh*100
 
+# Relative humidity calculation
+#  inputs: t       temperature in area of sample (K)
+#          t_d     dew point temperature in area of sample (K)
+#          p       pressure in area of sample (Pa)
+#  output: rh      relative humidity (0-1)
+def relative_humidity2(t, t_d, p):
+    # CoolProp
+    rh = hap.HAPropsSI('R','T',t,'D',t_d,'P',p)
+
+    return rh
 
 # Calculate ratio of specific heats
 #  inputs:  t     temperature (degF)
@@ -85,28 +105,50 @@ def gamma(t,p,mmr):
 
     w_h2o = mmr/(1+mmr)   # specific humidity (mass fraction water vapor)
     w_air = 1 - w_h2o     # mass fraction of dry air
-    
+
     gam_mix = gam_air*w_air + gam_h2o*w_h2o   # gamma of mixture
 
     return gam_mix
 
 
-# Calculate humid air density
-#  inputs:  t     temperature (degF)
-#           p     pressure (psi)
-#           mmr   mass mixing ratio (kgDA/kgWV)
-#  output:  rho   mixture density (lbm/ft3)
-def density(t,p,mmr):
-    t_K = (t-32)*5/9 + 273.15     # Kelvin
-    p_Pa = p / (KPA2PSI/1000)     # Pascals
-
-    p_w = p_Pa * mmr / (mh2o/mair + mmr)  # vapor pressure (Pa)
-    p_a = p_Pa - p_w   # partial pressure of air (Pa)
-
-    rho_air = cpp.PropsSI('D','T',t_K,'P',p_a,'air')    # density kg/m3
-    rho_h2o = cpp.PropsSI('D','T',t_K,'P',p_w,'water')  # density kg/m3
-    rho_mix = (rho_air + rho_h2o) * kgm2lbft           # density lbm/ft3
-
-    return rho_mix
-
-
+# # Calculate humid air density
+# #  inputs:  t     temperature (degF)
+# #           p     pressure (psi)
+# #           mmr   mass mixing ratio (kgDA/kgWV)
+# #  output:  rho   mixture density (lbm/ft3)
+# def density(t,p,mmr):
+#     t_K = (t-32)*5/9 + 273.15     # Kelvin
+#     p_Pa = p / (KPA2PSI/1000)     # Pascals
+#
+#     p_w = p_Pa * mmr / (mh2o/mair + mmr)  # vapor pressure (Pa)
+#     p_a = p_Pa - p_w   # partial pressure of air (Pa)
+#
+#     rho_air = cpp.PropsSI('D','T',t_K,'P',p_a,'air')    # density kg/m3
+#     rho_h2o = cpp.PropsSI('D','T',t_K,'P',p_w,'water')  # density kg/m3
+#     rho_mix = (rho_air + rho_h2o) * kgm2lbft           # density lbm/ft3
+#
+#     return rho_mix
+#
+# # Air density calculation
+# #  inputs: t       temperature in area of sample (K)
+# #          t_d     dew point temperature in area of sample (K)
+# #          rh      relative humidity (0-1) (enter -1 if not known)
+# #          p       pressure in area of sample (Pa)
+# # NOTE: either t_d or rh must be known
+# #  output: rho     humid air density (kg/m^3)
+# def air_density(t, t_d, rh, p):
+#
+#     rh_pct = np.where(rh<0, relative_humidity(t,t_d,p), rh)  # numpy version of the code below
+#     # if rh < 0.0:
+#     #     rh_pct = relative_humidity(t, t_d, p)
+#     # else:
+#     #     rh_pct = rh
+#
+#     pvs = cp.PropsSI('P', 'T', t, 'Q', 1, 'water')    # Saturation vapor pressure
+#     pv = rh_pct * pvs                                 # Vapor pressure (or partial pressure of water)
+#     pa = p - pv                                       # Partial pressure of dry air
+#
+#     rhoa = cp.PropsSI('D','T',t,'P',pa,'air')     # Partial density of dry air
+#     rhoh = cp.PropsSI('D','T',t,'P',pvs,'water')  # Partial density of water vapor
+#
+#     return rhoa + rhoh

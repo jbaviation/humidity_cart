@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'basic_GUI.ui'
+# Form implementation generated from reading ui file './basic_GUI.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
 #
@@ -31,10 +31,18 @@ class Ui_MainWindow(object):
         self.HumGenLabel.setTextFormat(QtCore.Qt.AutoText)
         self.HumGenLabel.setObjectName("HumGenLabel")
         self.HumGenUnits1 = QtWidgets.QLabel(self.centralwidget)
-        self.HumGenUnits1.setGeometry(QtCore.QRect(270, 220, 151, 81))
+        self.HumGenUnits1.setGeometry(QtCore.QRect(270, 220, 371, 81))
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(24)
+        self.HumGenUnits1.setFont(font)
         self.HumGenUnits1.setObjectName("HumGenUnits1")
         self.HumGenUnits2 = QtWidgets.QLabel(self.centralwidget)
-        self.HumGenUnits2.setGeometry(QtCore.QRect(270, 430, 151, 81))
+        self.HumGenUnits2.setGeometry(QtCore.QRect(270, 430, 381, 81))
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(24)
+        self.HumGenUnits2.setFont(font)
         self.HumGenUnits2.setObjectName("HumGenUnits2")
         self.HumGenLCD2 = QtWidgets.QLCDNumber(self.centralwidget)
         self.HumGenLCD2.setGeometry(QtCore.QRect(60, 410, 191, 121))
@@ -60,7 +68,11 @@ class Ui_MainWindow(object):
         self.HumGenDDbox2.setGeometry(QtCore.QRect(60, 360, 301, 41))
         self.HumGenDDbox2.setObjectName("HumGenDDbox2")
         self.HumGenUnits3 = QtWidgets.QLabel(self.centralwidget)
-        self.HumGenUnits3.setGeometry(QtCore.QRect(270, 660, 151, 81))
+        self.HumGenUnits3.setGeometry(QtCore.QRect(270, 660, 401, 81))
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(24)
+        self.HumGenUnits3.setFont(font)
         self.HumGenUnits3.setObjectName("HumGenUnits3")
         self.HumGenLCD3 = QtWidgets.QLCDNumber(self.centralwidget)
         self.HumGenLCD3.setGeometry(QtCore.QRect(60, 640, 191, 121))
@@ -71,7 +83,7 @@ class Ui_MainWindow(object):
         self.HumGenDDbox3.setObjectName("HumGenDDbox3")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 712, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 712, 26))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -85,8 +97,18 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Humidity Cart Calibration"))
         self.HumGenLabel.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Humidity Generator</span></p></body></html>"))
-        self.HumGenUnits1.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:48pt;\">V</span></p></body></html>"))
-        self.HumGenUnits2.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:48pt;\">°F</span></p></body></html>"))
+        self.HumGenUnits1.setText(_translate("MainWindow", "°F"))
+        self.HumGenUnits2.setText(_translate("MainWindow", "°F"))
         self.StartButton.setText(_translate("MainWindow", "Scan"))
         self.StopButton.setText(_translate("MainWindow", "Stop"))
-        self.HumGenUnits3.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:48pt;\">°F</span></p></body></html>"))
+        self.HumGenUnits3.setText(_translate("MainWindow", "°F"))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())

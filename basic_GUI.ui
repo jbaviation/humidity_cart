@@ -62,12 +62,18 @@
      <rect>
       <x>270</x>
       <y>220</y>
-      <width>151</width>
+      <width>371</width>
       <height>81</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>24</pointsize>
+     </font>
+    </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:48pt;&quot;&gt;V&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>°F</string>
     </property>
    </widget>
    <widget class="QLabel" name="HumGenUnits2">
@@ -75,12 +81,18 @@
      <rect>
       <x>270</x>
       <y>430</y>
-      <width>151</width>
+      <width>381</width>
       <height>81</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>24</pointsize>
+     </font>
+    </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:48pt;&quot;&gt;°F&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>°F</string>
     </property>
    </widget>
    <widget class="QLCDNumber" name="HumGenLCD2">
@@ -160,12 +172,18 @@
      <rect>
       <x>270</x>
       <y>660</y>
-      <width>151</width>
+      <width>401</width>
       <height>81</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>24</pointsize>
+     </font>
+    </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:48pt;&quot;&gt;°F&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>°F</string>
     </property>
    </widget>
    <widget class="QLCDNumber" name="HumGenLCD3">
@@ -198,7 +216,7 @@
      <x>0</x>
      <y>0</y>
      <width>712</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

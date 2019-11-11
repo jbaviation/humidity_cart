@@ -13,7 +13,7 @@ class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
     # Declare signal variables for the class
     change_value = QtCore.pyqtSignal(float)   # Code based on https://www.youtube.com/watch?v=eYJTcLBQKug
 
-    def __init__(self, comm_port='COM4', baud_rate=4800, C1=0.0003, C0=0.0):
+    def __init__(self, comm_port='COM4', baud_rate=4800):
         ''' Initialize instance variable defaults for the DataQ_DI145 class
 
         Variable Descriptions:
@@ -26,8 +26,6 @@ class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
 
         self.comm_port = comm_port
         self.baud_rate = baud_rate
-        self.C1 = C1
-        self.C0 = C0
 
         # Cancel any threading that may be taking place already
         self.stop_thread = True
@@ -35,7 +33,6 @@ class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
 
         # Declare instance variables
         self.counts = None
-        self.voltage = None
 
         try:
             self.serDataq = serial.Serial(comm_port, baud_rate)  # initiate communication with ADC device
@@ -90,10 +87,10 @@ class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
                         data=data+byte2         # combine with status bits from previous byte
                         data=data<<2            # shift left 2 bits for 16-bit value
                         self.counts=data-32768       # subract 1000 0000 0000 0000 for raw ADC count
-                        self.voltage = self.C1*self.counts + self.C0    # convert to voltage
+                        # self.voltage = self.C1*self.counts + self.C0    # convert to voltage
 
                         ## Code based on https://www.youtube.com/watch?v=eYJTcLBQKug
-                        self.change_value.emit(self.voltage)
+                        self.change_value.emit(self.counts)
                         #---------------------------------------------------------------------------------
 
 
