@@ -19,12 +19,12 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 #----------------------------------------------------------------------------------
 
         # Initialize variables
-        self.pressure = 14.696  # psi, reference static pressure (set to SL press for now)
-        self.temperature = 80   # degF, reference static temperature
+        self.pressure = None  # psi, reference static pressure (set to SL press for now)
+        self.temperature = None   # degF, reference static temperature
+        self.setTP()   # set initial values
+        self.old_pressure = self.pressure   # in case of needing to revert
+        self.old_temperature = self.temperature  # in case of needing to revert
 
-        self.element = None
-        self.box = None
-        self.unit = None
         self.thread = None
         self.DDitems = ['Dew Point','Mass Mixing Ratio','Relative Humidity','Counts','Voltage']
         self.boxes = [self.HumGenDDbox1, self.HumGenDDbox2, self.HumGenDDbox3]
@@ -35,6 +35,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         icon = QtGui.QIcon('icon.jpg')
         self.setWindowIcon(icon)  # set the icon in the upper left corner of window
         self.addDDOptions()   # add options to dropdown boxes
+        self.updateBackgroundConditions()   # set temperature and pressure based on input
+        self.defaultDD()   # set default dropdowns
 
         # Initialize instance of DI-145
         self.s = ADC.DataQ_DI145()
@@ -47,6 +49,15 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def addDDOptions(self):
         for box in self.boxes:
             box.addItems(self.DDitems)
+
+    def defaultDD(self):
+        self.HumGenDDbox1.setCurrentIndex(1)  # box1 = MMR
+        self.HumGenDDbox2.setCurrentIndex(0)  # box2 = dew point
+        self.HumGenDDbox3.setCurrentIndex(2)  # box3 = relative humidity
+
+        # Update the units for each label
+        for box, unit in zip(self.boxes, self.units):
+            self.updateUnits(box.currentText(), unit)
 
     def scanClicked(self):
         self.s.scan()    # Start scan
@@ -73,6 +84,46 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         except:
             print('Could NOT stop thread')
 
+    def setTP(self):
+        checkP = float(self.PressureEdit.text())
+        checkT = float(self.TemperatureEdit.text())
+
+        def error_msg():
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText('Error')
+            msg.setWindowTitle('Error')
+            return msg
+
+
+        # Check pressure
+        if 0 < checkP <= 50:
+            self.pressure = checkP
+        else:
+            self.pressure = self.old_pressure
+            self.PressureEdit.setText(str(self.pressure))
+
+            msg = error_msg()
+            msg.setInformativeText('{} psia is NOT in the range 0-50 psia'.format(checkP))
+            msg.exec_()
+
+        # Check temperature
+        if -200 <= checkT <= 200:
+            self.temperature = checkT
+        else:
+            self.temperature = self.old_temperature
+            self.TemperatureEdit.setText(str(self.temperature))
+
+            msg = error_msg()
+            msg.setInformativeText('{} °F is NOT in the range -200-200 °F'.format(checkT))
+            msg.exec_()
+
+        self.old_pressure = self.pressure
+        self.old_temperature = self.temperature
+
+    def updateBackgroundConditions(self):
+        self.SetConditionsButton.clicked.connect(self.setTP)
+
     def updateHumGenButtons(self):
         self.StartButton.clicked.connect(self.scanClicked)
         self.StopButton.clicked.connect(self.stopClicked)
@@ -96,6 +147,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             unit.setText('V')
 
     def updateLCD(self, counts):
+        # Calculate various atmospheric conditions
         voltage = 0.0003*counts
         TddegC = voltage*10
         TddegF = TddegC*1.8 + 32
