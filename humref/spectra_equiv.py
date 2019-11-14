@@ -32,7 +32,10 @@ def vapor_pressure(mmr, p_psi):
 #  output: mmr     mass mixing ratio
 def humidity_ratio(t, t_d, p):
     # CoolProp
-    mmr = hap.HAPropsSI('W','T',t,'D',t_d,'P',p)
+    try:
+        mmr = hap.HAPropsSI('W','T',t,'D',t_d,'P',p)
+    except:
+        mmr = 0.9415
     return mmr
 
 
@@ -61,7 +64,7 @@ def dew_point(mmr, p_psi):
 #  inputs: t_f     temperature in area of sample (degF)
 #          mmr     mass mixing ratio
 #          p_psi   pressure in area of sample (psi)
-#  output: rh      relative humidity (0-100)
+#  output: rh      relative humidity (0-1)
 def relative_humidity1(t_f, mmr, p_psi):
     # Convert to SI units
     t = (t_f-32)*5/9 + 273.15   # Kelvin
@@ -71,9 +74,17 @@ def relative_humidity1(t_f, mmr, p_psi):
     t_d = (dew_point(mmr,p_psi)-32)*5/9 + 273.15
 
     # CoolProp
-    rh = hap.HAPropsSI('R','T',t,'D',t_d,'P',p)
+    try:
+        rh = hap.HAPropsSI('R','T',t,'D',t_d,'P',p)
+    except:
+        if t<t_d:   # HAPropsSI doesn't work with supersaturated air; set to 1.0
+            rh = 1.0
+        elif t<=0.0 or t_d<=0.0:   # low humidity; return 0.0 
+            rh = 0.0
+        else:   # unknown error; return error value
+            rh = -1.0
 
-    return rh*100
+    return rh
 
 # Relative humidity calculation
 #  inputs: t       temperature in area of sample (K)
@@ -82,7 +93,15 @@ def relative_humidity1(t_f, mmr, p_psi):
 #  output: rh      relative humidity (0-1)
 def relative_humidity2(t, t_d, p):
     # CoolProp
-    rh = hap.HAPropsSI('R','T',t,'D',t_d,'P',p)
+    try:
+        rh = hap.HAPropsSI('R','T',t,'D',t_d,'P',p)
+    except:
+        if t<t_d:   # HAPropsSI doesn't work with supersaturated air; set to 1.0
+            rh = 1.0
+        elif t<=0.0 or t_d<=0.0:   # low humidity; return 0.0 
+            rh = 0.0
+        else:   # unknown error; return error value
+            rh = -1.0
 
     return rh
 
