@@ -44,6 +44,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         # Connect update activity
         self.updateDDBoxes()
         self.updateHumGenButtons()
+        self.closeProgram()
+        
 
 
     def addDDOptions(self):
@@ -171,10 +173,13 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             elif box_val == self.DDitems[4]:  # Voltage
                 lcd.display('{:.3f}'.format(round(voltage, 3)))
 
+    def closeProgram(self):
+        self.CloseButton.clicked.connect(QtWidgets.QApplication.instance().quit)  # close program with button
+
 
 
 if __name__=='__main__':
     a = QtWidgets.QApplication(sys.argv)
     app = MainUiClass()
     app.show()
-    a.exec_()
+    sys.exit(a.exec_())

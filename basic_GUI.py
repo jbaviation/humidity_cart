@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './basic_GUI.ui'
+# Form implementation generated from reading ui file 'basic_GUI.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
 #
@@ -19,7 +19,7 @@ class Ui_MainWindow(object):
         self.HumGenLCD1 = QtWidgets.QLCDNumber(self.centralwidget)
         self.HumGenLCD1.setGeometry(QtCore.QRect(60, 200, 191, 121))
         self.HumGenLCD1.setSmallDecimalPoint(False)
-        self.HumGenLCD1.setDigitCount(6)
+        self.HumGenLCD1.setDigitCount(8)
         self.HumGenLCD1.setSegmentStyle(QtWidgets.QLCDNumber.Filled)
         self.HumGenLCD1.setProperty("intValue", 0)
         self.HumGenLCD1.setObjectName("HumGenLCD1")
@@ -46,7 +46,7 @@ class Ui_MainWindow(object):
         self.HumGenUnits2.setObjectName("HumGenUnits2")
         self.HumGenLCD2 = QtWidgets.QLCDNumber(self.centralwidget)
         self.HumGenLCD2.setGeometry(QtCore.QRect(60, 410, 191, 121))
-        self.HumGenLCD2.setDigitCount(6)
+        self.HumGenLCD2.setDigitCount(8)
         self.HumGenLCD2.setObjectName("HumGenLCD2")
         self.StartButton = QtWidgets.QRadioButton(self.centralwidget)
         self.StartButton.setGeometry(QtCore.QRect(50, 90, 99, 21))
@@ -76,7 +76,7 @@ class Ui_MainWindow(object):
         self.HumGenUnits3.setObjectName("HumGenUnits3")
         self.HumGenLCD3 = QtWidgets.QLCDNumber(self.centralwidget)
         self.HumGenLCD3.setGeometry(QtCore.QRect(60, 640, 191, 121))
-        self.HumGenLCD3.setDigitCount(6)
+        self.HumGenLCD3.setDigitCount(8)
         self.HumGenLCD3.setObjectName("HumGenLCD3")
         self.HumGenDDbox3 = QtWidgets.QComboBox(self.centralwidget)
         self.HumGenDDbox3.setGeometry(QtCore.QRect(60, 590, 301, 41))
@@ -125,9 +125,15 @@ class Ui_MainWindow(object):
         font.setPointSize(11)
         self.SetConditionsButton.setFont(font)
         self.SetConditionsButton.setObjectName("SetConditionsButton")
+        self.CloseButton = QtWidgets.QPushButton(self.centralwidget)
+        self.CloseButton.setGeometry(QtCore.QRect(570, 470, 271, 121))
+        font = QtGui.QFont()
+        font.setPointSize(26)
+        self.CloseButton.setFont(font)
+        self.CloseButton.setObjectName("CloseButton")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 966, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 966, 21))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -153,13 +159,4 @@ class Ui_MainWindow(object):
         self.PressureUnitLabel.setText(_translate("MainWindow", "psia"))
         self.TemperatureUnitLabel.setText(_translate("MainWindow", "°F"))
         self.SetConditionsButton.setText(_translate("MainWindow", "Set Conditions"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
+        self.CloseButton.setText(_translate("MainWindow", "Close"))

@@ -27,7 +27,7 @@
      <bool>false</bool>
     </property>
     <property name="digitCount">
-     <number>6</number>
+     <number>8</number>
     </property>
     <property name="segmentStyle">
      <enum>QLCDNumber::Filled</enum>
@@ -105,7 +105,7 @@
      </rect>
     </property>
     <property name="digitCount">
-     <number>6</number>
+     <number>8</number>
     </property>
    </widget>
    <widget class="QRadioButton" name="StartButton">
@@ -196,7 +196,7 @@
      </rect>
     </property>
     <property name="digitCount">
-     <number>6</number>
+     <number>8</number>
     </property>
    </widget>
    <widget class="QComboBox" name="HumGenDDbox3">
@@ -337,6 +337,24 @@
      <string>Set Conditions</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="CloseButton">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>470</y>
+      <width>271</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>26</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Close</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -344,7 +362,7 @@
      <x>0</x>
      <y>0</y>
      <width>966</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
