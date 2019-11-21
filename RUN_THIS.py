@@ -2,8 +2,7 @@
 
 from humref import spectra_equiv
 import ADC
-import pdb
-
+import WVSS
 
 ## GUI application------------------------------------------------------------------
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -41,6 +40,9 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         # Initialize instance of DI-145
         self.s = ADC.DataQ_DI145()
+
+        # Initialize instance of WVSS
+        
 
         # Connect update activity
         self.updateDDBoxes()
