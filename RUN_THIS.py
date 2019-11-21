@@ -14,7 +14,8 @@ import sys
 import basic_GUI as gui
 class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def __init__(self, parent=None):
-        super(MainUiClass, self).__init__(parent)
+        # super(MainUiClass, self).__init__(parent)
+        super().__init__(parent)
         self.setupUi(self)
 #----------------------------------------------------------------------------------
 
@@ -174,7 +175,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 lcd.display('{:.3f}'.format(round(voltage, 3)))
 
     def closeProgram(self):
-        self.CloseButton.clicked.connect(QtWidgets.QApplication.instance().quit)  # close program with button
+        # self.CloseButton.clicked.connect(QtWidgets.QApplication.instance().quit)  # close program with button
+        self.CloseButton.clicked.connect(QtWidgets.qApp.quit)  # close program with button
 
 
 
