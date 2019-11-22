@@ -29,7 +29,7 @@ class WVSS_II(QtCore.QThread):
         self.stop_bits = 1
 
         # Calculated condition variables
-        self.set_zeros()
+        # self.set_zeros()
 
         # Threading variables
         self.stop_thread = True
@@ -70,54 +70,78 @@ class WVSS_II(QtCore.QThread):
         self.stop_thread = False
 
         while True:
-            try:
-                if self.stop_thread:
-                    break
+            # try:
+            if self.stop_thread:
+                break
 
-                self.raw_string = self.serWVSS.readline()    # Read entire line into one string
-                # self.change_value.emit(self.raw_string)
+            self.raw_string = self.serWVSS.readline().decode()    # Read entire line into one string
+            self.change_value.emit(self.raw_string)
 
-                list_vals = self.parse_string(self.raw_string)           # Convert to set of variables for printing
+            # list_vals = parse_string(self.raw_string)           # Convert to set of variables for printing
+
+            # Print to screen section for debugging------------------
+            # print('\n')
+            # print(list_vals)
+            # print('\n')
+            # -------------------------------------------------------
+            # except:
+            #     pass
+
+    # def set_zeros(self):
+    #     self.wv_ppmv=0
+    #     self.p_mbar=0
+    #     self.t_C=0
+    #     self.pp2f_cts=0
+    #     self.lasPow_cnts=0
+    #     self.pkI_cnts=0
+    #     self.null_cnts=0
+    #     self.midPt_mA=0
+    #     self.amidPt_mA=0
+    #     self.p_cf=0
+    #     self.bl_cf=0
+
+    # def parse_string(self, raw_output_string):
+    #     ''' This function converts the output of Water Vapor Monitor System to individual
+    #         floating point values'''
+    #     string = raw_output_string.decode().strip('\r\n')    # Convert to unicode and remove characters
+    #     list_string = string.split(' ')                      # Split into a list
+
+    #     # With the way that the padding works, some elements return empty strings
+    #     list_string = list(filter(None, list_string))    # to remove empty strings
+    #     list_vals = [float(s) for s in list_string]      # convert to floating points
+
+    #     try:
+    #         self.wv_ppmv,self.p_mbar,self.t_C,self.pp2f_cts,self.lasPow_cnts,self.pkI_cnts, \
+    #             self.null_cnts,self.midPt_mA,self.amidPt_mA,self.p_cf,self.bl_cf = list_vals
+    #     except:
+    #         print('WARNING -- Could not parse data from the Water Vapor Monitor System; all values set to zero')
+    #         self.set_zeros()
+
+    #     return list_vals
 
 
-                print('\n')
-                print(list_vals)
-                print('\n')
+def parse_string(raw_output_string):
+    ''' This function converts the output of Water Vapor Monitor System to individual
+        floating point values'''
+    string = raw_output_string.strip('\r\n')    # Convert to unicode and remove characters
+    list_string = string.split(' ')                      # Split into a list
 
-            except:
-                pass
+    # With the way that the padding works, some elements return empty strings
+    list_string = list(filter(None, list_string))    # to remove empty strings
+    list_vals = [float(s) for s in list_string]      # convert to floating points
 
-    def set_zeros(self):
-        self.wv_ppmv=0
-        self.p_mbar=0
-        self.t_C=0
-        self.pp2f_cts=0
-        self.lasPow_cnts=0
-        self.pkI_cnts=0
-        self.null_cnts=0
-        self.midPt_mA=0
-        self.amidPt_mA=0
-        self.p_cf=0
-        self.bl_cf=0
+# Section currently NOT USED --------------------------------------------------------------
+    try:
+        wv_ppmv,p_mbar,t_C,pp2f_cts,lasPow_cnts,pkI_cnts, \
+            null_cnts,midPt_mA,amidPt_mA,p_cf,bl_cf = list_vals
+    except:
+        print('WARNING -- Could not parse data from the Water Vapor Monitor System; all values set to zero')
+        wv_ppmv=0;p_mbar=0;t_C=0;pp2f_cts=0;lasPow_cnts=0;pkI_cnts=0;null_cnts=0;midPt_mA=0;amidPt_mA=0;p_cf=0;bl_cf=0
+# -----------------------------------------------------------------------------------------
 
-    def parse_string(self, raw_output_string):
-        ''' This function converts the output of Water Vapor Monitor System to individual
-            floating point values'''
-        string = raw_output_string.decode().strip('\r\n')    # Convert to unicode and remove characters
-        list_string = string.split(' ')                      # Split into a list
+    return list_vals
 
-        # With the way that the padding works, some elements return empty strings
-        list_string = list(filter(None, list_string))    # to remove empty strings
-        list_vals = [float(s) for s in list_string]      # convert to floating points
 
-        try:
-            self.wv_ppmv,self.p_mbar,self.t_C,self.pp2f_cts,self.lasPow_cnts,self.pkI_cnts, \
-                self.null_cnts,self.midPt_mA,self.amidPt_mA,self.p_cf,self.bl_cf = list_vals
-        except:
-            print('WARNING -- Could not parse data from the Water Vapor Monitor System; all values set to zero')
-            self.set_zeros()
-
-        return list_vals
 
 
 if __name__ == '__main__':

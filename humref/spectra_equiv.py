@@ -38,6 +38,18 @@ def humidity_ratio(t, t_d, p):
         mmr = 0.9415
     return mmr
 
+# Humidity ratio (aka mass mixing ratio)
+#  inputs: ppmv    parts per million by volume water vapor
+#  output: mmr     mass mixing ratio
+def humidity_ratio2(ppmv):
+    z = ppmv * 1e-6   # mole ratio from ppmv
+    return z * (MH2O/MAIR)
+
+# Mole ratio (actually ppmv)
+#  inputs: mmr      mass mixing ratio
+#  output: ppmv     parts per million by volume water vapor 
+def mole_ratio(mmr):
+    return (MAIR*mmr/MH2O) * 1e6
 
 # Dew Point calculation (checked and PASSED)
 #  inputs: mmr     mass mixing ratio
@@ -114,13 +126,13 @@ def gamma(t,p,mmr):
     t_K = (t-32)*5/9 + 273.15     # Kelvin
     p_Pa = p / (KPA2PSI/1000)     # Pascals
 
-    p_w = p_Pa * mmr / (mh2o/mair + mmr)  # vapor pressure (Pa)
+    p_w = p_Pa * mmr / (MH2O/MAIR + mmr)  # vapor pressure (Pa)
     p_a = p_Pa - p_w   # partial pressure of air (Pa)
 
-    cp = 'CPMASS'
-    cv = 'CVMASS'
-    gam_air = cpp.PropsSI(cp,'T',t_K,'P',p_a,'air')/cpp.PropsSI(cv,'T',t_K,'P',p_a,'air')
-    gam_h2o = cpp.PropsSI(cp,'T',t_K,'P',p_w,'water')/cpp.PropsSI(cv,'T',t_K,'P',p_w,'water')
+    CP = 'CPMASS'
+    CV = 'CVMASS'
+    gam_air = cp.PropsSI(CP,'T',t_K,'P',p_a,'air')/cp.PropsSI(CV,'T',t_K,'P',p_a,'air')
+    gam_h2o = cp.PropsSI(CP,'T',t_K,'P',p_w,'water')/cp.PropsSI(CV,'T',t_K,'P',p_w,'water')
 
     w_h2o = mmr/(1+mmr)   # specific humidity (mass fraction water vapor)
     w_air = 1 - w_h2o     # mass fraction of dry air
@@ -130,23 +142,23 @@ def gamma(t,p,mmr):
     return gam_mix
 
 
-# # Calculate humid air density
-# #  inputs:  t     temperature (degF)
-# #           p     pressure (psi)
-# #           mmr   mass mixing ratio (kgDA/kgWV)
-# #  output:  rho   mixture density (lbm/ft3)
-# def density(t,p,mmr):
-#     t_K = (t-32)*5/9 + 273.15     # Kelvin
-#     p_Pa = p / (KPA2PSI/1000)     # Pascals
-#
-#     p_w = p_Pa * mmr / (mh2o/mair + mmr)  # vapor pressure (Pa)
-#     p_a = p_Pa - p_w   # partial pressure of air (Pa)
-#
-#     rho_air = cpp.PropsSI('D','T',t_K,'P',p_a,'air')    # density kg/m3
-#     rho_h2o = cpp.PropsSI('D','T',t_K,'P',p_w,'water')  # density kg/m3
-#     rho_mix = (rho_air + rho_h2o) * kgm2lbft           # density lbm/ft3
-#
-#     return rho_mix
+# Calculate humid air density
+#  inputs:  t     temperature (degF)
+#           p     pressure (psi)
+#           mmr   mass mixing ratio (kgDA/kgWV)
+#  output:  rho   mixture density (lbm/ft3)
+def density(t,p,mmr):
+    t_K = (t-32)*5/9 + 273.15     # Kelvin
+    p_Pa = p / (KPA2PSI/1000)     # Pascals
+
+    p_w = p_Pa * mmr / (MH2O/MAIR + mmr)  # vapor pressure (Pa)
+    p_a = p_Pa - p_w   # partial pressure of air (Pa)
+
+    rho_air = cp.PropsSI('D','T',t_K,'P',p_a,'air')    # density kg/m3
+    rho_h2o = cp.PropsSI('D','T',t_K,'P',p_w,'water')  # density kg/m3
+    rho_mix = (rho_air + rho_h2o) * KGM2LBFT           # density lbm/ft3
+
+    return rho_mix
 #
 # # Air density calculation
 # #  inputs: t       temperature in area of sample (K)
