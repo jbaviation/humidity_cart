@@ -97,6 +97,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             ## Group of Code base on https://www.youtube.com/watch?v=eYJTcLBQKug
             self.thread = self.s
             self.thread.change_value.connect(self.updateLCD)
+            self.thread.heartbeat.connect(self.indicateScan)
             self.thread.start()
             #---------------------------------------------------------------------------------
             print('LiCor thread started')
@@ -113,6 +114,11 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             print('LiCor thread stopped')
         except:
             print('LiCor thread could NOT be stopped')
+
+    def indicateScan(self):
+        
+
+        pass
 
     def setTP(self):
         checkP = float(self.PressureEdit.text())
@@ -203,6 +209,24 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         # Set each LCD to the respective value based on combobox selection
         self.box_loop(self.LCDs, values)
 
+    def updateLCDss(self, raw_string):
+        # Convert raw_string to list of values
+        vals = WVSS.parse_string(raw_string)
+        voltage = 9999.0
+        counts = vals[3]
+        ppmv = vals[0]
+        mmr = spectra_equiv.humidity_ratio2(ppmv)
+        TddegF = spectra_equiv.dew_point(mmr, self.pressure)
+        rh = spectra_equiv.relative_humidity1(self.temperature, mmr, self.pressure)*100
+        gam = spectra_equiv.gamma(self.temperature, self.pressure, mmr)
+        rho = spectra_equiv.density(self.temperature, self.pressure, mmr)
+
+        # Combine the calculated values
+        values = [TddegF, mmr, rh, counts, voltage, ppmv, gam, rho]
+
+        # Set each LCD to the respective value based on combobox selection
+        self.box_loop(self.LCDss, values)
+
     def box_loop(self, LCDS, values):
         for lcd, box in zip(LCDS, self.boxes):
             box_val = str(box.currentText())
@@ -222,24 +246,6 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 lcd.display('{:.3f}'.format(round(values[6], 3)))
             elif box_val == 'Air Density':
                 lcd.display('{:.4f}'.format(round(values[7], 4)))
-
-    def updateLCDss(self, raw_string):
-        # Convert raw_string to list of values
-        vals = WVSS.parse_string(raw_string)
-        voltage = 9999.0
-        counts = vals[3]
-        ppmv = vals[0]
-        mmr = spectra_equiv.humidity_ratio2(ppmv)
-        TddegF = spectra_equiv.dew_point(mmr, self.pressure)
-        rh = spectra_equiv.relative_humidity1(self.temperature, mmr, self.pressure)*100
-        gam = spectra_equiv.gamma(self.temperature, self.pressure, mmr)
-        rho = spectra_equiv.density(self.temperature, self.pressure, mmr)
-
-        # Combine the calculated values
-        values = [TddegF, mmr, rh, counts, voltage, ppmv, gam, rho]
-
-        # Set each LCD to the respective value based on combobox selection
-        self.box_loop(self.LCDss, values)
 
     def closeProgram(self):
         # self.CloseButton.clicked.connect(QtWidgets.QApplication.instance().quit)  # close program with button

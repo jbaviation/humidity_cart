@@ -374,7 +374,7 @@
    <widget class="QGroupBox" name="LiCorGroupBox">
     <property name="geometry">
      <rect>
-      <x>579</x>
+      <x>559</x>
       <y>310</y>
       <width>181</width>
       <height>181</height>
@@ -451,7 +451,7 @@
    <widget class="QGroupBox" name="WVSSgroupBox">
     <property name="geometry">
      <rect>
-      <x>779</x>
+      <x>759</x>
       <y>310</y>
       <width>171</width>
       <height>181</height>

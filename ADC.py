@@ -12,6 +12,7 @@ from PyQt5 import QtGui, QtCore
 class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
     # Declare signal variables for the class
     change_value = QtCore.pyqtSignal(float)   # Code based on https://www.youtube.com/watch?v=eYJTcLBQKug
+    heartbeat = QtCore.pyqtSignal(str)        # Heartbeat to confirm device is connected
 
     def __init__(self, comm_port='COM5', baud_rate=4800):
         ''' Initialize instance variable defaults for the DataQ_DI145 class
@@ -72,6 +73,7 @@ class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
                     break
 
                 string = self.serDataq.read()
+                self.heartbeat.emit('yes')
                 byte = ord(string)
 
                 if self.statemachine==0:
@@ -94,4 +96,4 @@ class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
 
 
             except:
-                pass
+                self.heartbeat.emit('no')
