@@ -46,6 +46,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.s = None
         self.initializeLC()
         self.ss = None
+        self.initializeWVSS()
 
         # Connect update activity
         self.updateDDBoxes()
@@ -68,7 +69,6 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         self.all_labels = self.lcLabels + self.ssLabels
         self.all_LCDs = self.LCDs + self.LCDss
-
 
     def initializeLC(self):
         self.s = ADC.DataQ_DI145()
@@ -109,6 +109,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         try:
             self.threadSS = self.ss
             self.threadSS.change_value.connect(self.updateLCDss)
+            self.threadSS.heartbeat.connect(self.indicateScan)
             self.threadSS.start()
             print('WVSS thread started')
         except:
@@ -149,10 +150,9 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             print('LiCor thread could NOT be stopped')
 
     def indicateScan(self, yes_no):
-        ''' Connected to DataQ heartbeat to tell if we are communicating with device.'''
+        ''' Connected to heartbeat to tell if we are communicating with devices.'''
+        # LiCor Heartbeat
         if yes_no == 'yesLC':
-            # If LiCor is scanning, modify this code to change how the GUI looks
-
             # Change label colors
             for label in self.lcLabels:
                 label.setStyleSheet('color: green')
@@ -162,10 +162,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 lcd.setStyleSheet('''QLCDNumber {
                                             background-color: black;
                                             color: green; }''')
-
-
         elif yes_no == 'noLC':
-            # If LiCor not scanning, modify this code to change how the GUI looks
             # Change label colors
             for label in self.lcLabels:
                 label.setStyleSheet('color: red')
@@ -175,10 +172,29 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 lcd.setStyleSheet('''QLCDNumber {
                                             background-color: black;
                                             color: red; }''')
+        # Spectra Heartbeat
+        elif yes_no == 'yesSS':
+            # Change label colors
+            for label in self.ssLabels:
+                label.setStyleSheet('color: green')
 
+            # Change LCD colors
+            for lcd in self.LCDss:
+                lcd.setStyleSheet('''QLCDNumber {
+                                            background-color: black;
+                                            color: green; }''')
+        elif yes_no == 'noSS':
+            # Change label colors
+            for label in self.ssLabels:
+                label.setStyleSheet('color: red')
+
+            # Change LCD colors
+            for lcd in self.LCDss:
+                lcd.setStyleSheet('''QLCDNumber {
+                                            background-color: black;
+                                            color: red; }''')
         else:
-            # Not = to yes or no, print a message to the console
-            print('WARNING: heartbeat unable to determine state of the ADC')
+            print('WARNING: heartbeat unable to determine state of a device')
 
 
 

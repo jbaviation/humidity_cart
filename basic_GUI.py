@@ -250,7 +250,7 @@ class Ui_MainWindow(object):
         self.WVSSUnits3.setObjectName("WVSSUnits3")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 956, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 956, 21))
         self.menubar.setObjectName("menubar")
         self.menuSetup = QtWidgets.QMenu(self.menubar)
         self.menuSetup.setObjectName("menuSetup")
@@ -264,11 +264,11 @@ class Ui_MainWindow(object):
         self.menuLiCor.setObjectName("menuLiCor")
         self.menuWVSS = QtWidgets.QAction(MainWindow)
         self.menuWVSS.setObjectName("menuWVSS")
-        self.actionExit = QtWidgets.QAction(MainWindow)
-        self.actionExit.setObjectName("actionExit")
+        self.actionRecord = QtWidgets.QAction(MainWindow)
+        self.actionRecord.setObjectName("actionRecord")
         self.menuSetup.addAction(self.menuLiCor)
         self.menuSetup.addAction(self.menuWVSS)
-        self.menuFile.addAction(self.actionExit)
+        self.menuFile.addAction(self.actionRecord)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuSetup.menuAction())
 
@@ -309,7 +309,7 @@ class Ui_MainWindow(object):
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuLiCor.setText(_translate("MainWindow", "LiCor"))
         self.menuWVSS.setText(_translate("MainWindow", "WVSS"))
-        self.actionExit.setText(_translate("MainWindow", "Exit"))
+        self.actionRecord.setText(_translate("MainWindow", "Record"))
 
 
 if __name__ == "__main__":

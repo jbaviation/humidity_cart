@@ -11,7 +11,8 @@ from PyQt5 import QtGui, QtCore
 
 class WVSS_II(QtCore.QThread):
     # Declare signal variables for the class
-    change_value = QtCore.pyqtSignal(str)  # Code based on https://www.youtube.com/watch?v=eYJTcLBQKug
+    change_value = QtCore.pyqtSignal(str)   # Code based on https://www.youtube.com/watch?v=eYJTcLBQKug
+    heartbeat = QtCore.pyqtSignal(str)      # Heartbeat to confirm device is connected
 
     def __init__(self, comm_port='COM1'):
         ''' Initialize instance variable defaults for the WVSS_II class
@@ -36,7 +37,7 @@ class WVSS_II(QtCore.QThread):
 
         try:
             self.serWVSS = serial.Serial(self.comm_port, self.baud_rate, timeout=6)  # initiate communication with WVSS
-        
+
         # Check for connection issues --------------------------------------
         except:
             self.connection_issues(0)   # Device not connecting issue
@@ -44,7 +45,7 @@ class WVSS_II(QtCore.QThread):
         if self.serWVSS.read() == b'':
             self.connection_issues(1)   # Device not reading issue
         #-------------------------------------------------------------------
- 
+
 
     def connection_issues(self, err_num):
         try:
@@ -76,6 +77,9 @@ class WVSS_II(QtCore.QThread):
 
             self.raw_string = self.serWVSS.readline().decode()    # Read entire line into one string
             self.change_value.emit(self.raw_string)
+            self.heartbeat.emit('yesSS')
+
+        self.heartbeat.emit('noSS')
 
 
 def parse_string(raw_output_string):

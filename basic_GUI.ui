@@ -706,7 +706,7 @@
      <x>0</x>
      <y>0</y>
      <width>956</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSetup">
@@ -720,7 +720,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionExit"/>
+    <addaction name="actionRecord"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSetup"/>
@@ -736,9 +736,9 @@
     <string>WVSS</string>
    </property>
   </action>
-  <action name="actionExit">
+  <action name="actionRecord">
    <property name="text">
-    <string>Exit</string>
+    <string>Record</string>
    </property>
   </action>
  </widget>
