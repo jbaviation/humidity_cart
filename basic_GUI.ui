@@ -713,8 +713,8 @@
     <property name="title">
      <string>Setup</string>
     </property>
-    <addaction name="menuLiCor"/>
-    <addaction name="menuWVSS"/>
+    <addaction name="menuHardware"/>
+    <addaction name="menuRecording"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -726,14 +726,14 @@
    <addaction name="menuSetup"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="menuLiCor">
+  <action name="menuHardware">
    <property name="text">
-    <string>LiCor</string>
+    <string>Hardware</string>
    </property>
   </action>
-  <action name="menuWVSS">
+  <action name="menuRecording">
    <property name="text">
-    <string>WVSS</string>
+    <string>Recording</string>
    </property>
   </action>
   <action name="actionRecord">
