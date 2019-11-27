@@ -720,7 +720,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionRecord"/>
+    <addaction name="menuRecord"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSetup"/>
@@ -728,17 +728,17 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="menuHardware">
    <property name="text">
-    <string>Hardware</string>
+    <string>Hardware Settings</string>
    </property>
   </action>
   <action name="menuRecording">
    <property name="text">
-    <string>Recording</string>
+    <string>Recording Settings</string>
    </property>
   </action>
-  <action name="actionRecord">
+  <action name="menuRecord">
    <property name="text">
-    <string>Record</string>
+    <string>Trigger Record</string>
    </property>
   </action>
  </widget>

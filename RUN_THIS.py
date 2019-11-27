@@ -8,8 +8,22 @@ import WVSS
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 
+## For the hardware setup GUI
+# The following allows you to access the auto-generated gui from pyuic5
+import setup_GUI as sgui
+class HardwareGUI(QtWidgets.QDialog, sgui.Ui_Dialog):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setupUi(self)
+        self.lineLC.setText('COM5')
+        self.lineWVSS.setText('COM1')
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setText('Apply')  # Change text from Ok to Apply
 
-## The following allows you to access the auto-generated gui from pyuic5
+#----------------------------------------------------------------------------------
+
+
+## For the main window gui
+# The following allows you to access the auto-generated gui from pyuic5
 import basic_GUI as gui
 class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def __init__(self, parent=None):
@@ -36,26 +50,21 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.addDDOptions()   # add options to dropdown boxes
         self.updateBackgroundConditions()   # set temperature and pressure based on input
         self.defaultDD()   # set default dropdowns
+        self.disableRadioButtons()   # grey out radio buttons before initializing
 
         # Change default formatting
         icon = QtGui.QIcon('icon.jpg')
         self.setWindowIcon(icon)  # set the icon in the upper left corner of window
         self.viewFormatting()   # set aestetics of the page
 
-        # Initialize instance of DI-145 and WVSS
+        # Initialize instance of DI-145 and WVSS (modified from setupGUIclicked())
         self.s = None
-        self.initializeLC()
         self.ss = None
-        self.initializeWVSS()
 
         # Connect update activity
         self.updateDDBoxes()
         self.updateStartStopButtons()
         self.closeProgram()
-
-    def menuActions(self):
-        self.menuFile.addAction('Exit', self.close)  # add option for exiting program from menubar
-        pass
 
     def createLists(self):
         self.DDitems = ['Dew Point','Mass Mixing Ratio','Relative Humidity','Water Vapor Concentration',\
@@ -71,16 +80,51 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.lcLabels = [self.lcLabel1, self.lcLabel2, self.lcLabel3]
         self.ssLabels = [self.ssLabel1, self.ssLabel2, self.ssLabel3]
 
+        self.lcRbuttons = [self.StartButton, self.StopButton]
+        self.ssRbuttons = [self.WVSSstartButton, self.WVSSstopButton]
+
         self.all_labels = self.lcLabels + self.ssLabels
         self.all_LCDs = self.LCDs + self.LCDss
+        self.all_Rbuttons = self.lcRbuttons + self.ssRbuttons
 
-    def initializeLC(self):
-        self.s = ADC.DataQ_DI145()
-        pass
+    def menuActions(self):
+        self.menuFile.addAction('Exit', self.close).setShortcut('Ctrl+Q')  # add option for exiting program from menubar
+        self.menuHardware.triggered.connect(self.setupGUIclicked)
 
-    def initializeWVSS(self):
-        self.ss = WVSS.WVSS_II()
-        pass
+        # Set shortcuts
+        self.menuHardware.setShortcut('Ctrl+H')
+        self.menuRecording.setShortcut('Ctrl+R')
+        self.menuRecord.setShortcut('Ctrl+A')
+
+    def setupGUIclicked(self):
+        ''' Control content from setup_GUI by attempting to initiate instances
+            of the LiCor and SpectraSensor'''
+        dlg = HardwareGUI(self)
+        dlg.buttonBox.accepted.connect(dlg.accept)
+        dlg.buttonBox.rejected.connect(dlg.reject)
+
+        # The following executes the dialog box and returns whether it was
+        # accepted or rejected
+        result = dlg.exec_()
+        if result == QtWidgets.QDialog.Accepted:
+            '''Try to accept the changes and initialize COM ports.  If unsuccessful,
+               show a message box that request cannot be completed'''
+            comLC = dlg.lineLC.text()
+            comSS = dlg.lineWVSS.text()
+            try:
+                self.s = ADC.DataQ_DI145(comLC)
+                for button in self.lcRbuttons:
+                    button.setEnabled(True)
+
+            except:
+                print('Could NOT initialize ADC from setupGUIclicked')
+
+            try:
+                self.ss = WVSS.WVSS_II(comSS)
+                for button in self.ssRbuttons:
+                    button.setEnabled(True)
+            except:
+                print('Could NOT initialize WVSS from setupGUIclicked')
 
     def viewFormatting(self):
         # Change label colors
@@ -199,8 +243,6 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                                             color: red; }''')
         else:
             print('WARNING: heartbeat unable to determine state of a device')
-
-
 
     def setTP(self):
         checkP = float(self.PressureEdit.text())
@@ -328,6 +370,10 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 lcd.display('{:.3f}'.format(round(values[6], 3)))
             elif box_val == 'Air Density':
                 lcd.display('{:.4f}'.format(round(values[7], 4)))
+
+    def disableRadioButtons(self):
+        for Rbutton in self.all_Rbuttons:
+            Rbutton.setEnabled(False)
 
     def closeProgram(self):
         # self.CloseButton.clicked.connect(QtWidgets.QApplication.instance().quit)  # close program with button

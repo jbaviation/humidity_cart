@@ -32,7 +32,7 @@ class Ui_Dialog(object):
         font.setPointSize(8)
         self.buttonBox.setFont(font)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Apply|QtWidgets.QDialogButtonBox.Cancel)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Ok|QtWidgets.QDialogButtonBox.Cancel)
         self.buttonBox.setObjectName("buttonBox")
         self.label3 = QtWidgets.QLabel(Dialog)
         self.label3.setGeometry(QtCore.QRect(30, 53, 101, 21))
