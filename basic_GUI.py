@@ -250,7 +250,7 @@ class Ui_MainWindow(object):
         self.WVSSUnits3.setObjectName("WVSSUnits3")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 956, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 956, 26))
         self.menubar.setObjectName("menubar")
         self.menuSetup = QtWidgets.QMenu(self.menubar)
         self.menuSetup.setObjectName("menuSetup")
@@ -307,9 +307,9 @@ class Ui_MainWindow(object):
         self.WVSSUnits3.setText(_translate("MainWindow", "°F"))
         self.menuSetup.setTitle(_translate("MainWindow", "Setup"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
-        self.menuHardware.setText(_translate("MainWindow", "Hardware Settings"))
-        self.menuRecording.setText(_translate("MainWindow", "Recording Settings"))
-        self.menuRecord.setText(_translate("MainWindow", "Trigger Record"))
+        self.menuHardware.setText(_translate("MainWindow", "Port Configuration"))
+        self.menuRecording.setText(_translate("MainWindow", "Recording Configuration"))
+        self.menuRecord.setText(_translate("MainWindow", "Record"))
 
 
 if __name__ == "__main__":

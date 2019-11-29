@@ -35,33 +35,31 @@ class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
         # Declare instance variables
         self.counts = None
 
+        # Try to scan the device, otherwise try to initialize it
         try:
+            self.scan()
+            self.sts()
+        except:
             self.serDataq = serial.Serial(comm_port, baud_rate)  # initiate communication with ADC device
             self.serDataq.write(b'S0\r')   # force device to stop scanning if was left scanning
             self.serDataq.write(b'C1')     # enable only channel 1
-        except:
-            pass
 
 
     def scan(self):
         ''' Initiate device scan '''
         self.stop_thread = False
-        try:
-            self.serDataq.write(b'S1')      # start scanning
-            self.statemachine = 0           # initate synched variable
-            print('Scan started')
-        except:
-            print('Could NOT scan the device...try re-initializing')
+
+        self.serDataq.write(b'S1')      # start scanning
+        self.statemachine = 0           # initate synched variable
+        print('Scan started')
 
 
     def sts(self):
         ''' Initiate device stop '''
         self.stop_thread = True
-        try:
-            self.serDataq.write(b'S0')      # stop scanning
-            print('Scan stopped')
-        except:
-            print('Could NOT stop scan the device...try re-initializing')
+
+        self.serDataq.write(b'S0')      # stop scanning
+        print('Scan stopped')
 
     @QtCore.pyqtSlot()
     def run(self):

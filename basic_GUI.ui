@@ -706,7 +706,7 @@
      <x>0</x>
      <y>0</y>
      <width>956</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSetup">
@@ -728,17 +728,17 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="menuHardware">
    <property name="text">
-    <string>Hardware Settings</string>
+    <string>Port Configuration</string>
    </property>
   </action>
   <action name="menuRecording">
    <property name="text">
-    <string>Recording Settings</string>
+    <string>Recording Configuration</string>
    </property>
   </action>
   <action name="menuRecord">
    <property name="text">
-    <string>Trigger Record</string>
+    <string>Record</string>
    </property>
   </action>
  </widget>

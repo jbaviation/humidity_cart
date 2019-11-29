@@ -15,12 +15,17 @@ class HardwareGUI(QtWidgets.QDialog, sgui.Ui_Dialog):
     def __init__(self, parent):
         super().__init__(parent)
         self.setupUi(self)
-        self.lineLC.setText('COM5')
-        self.lineWVSS.setText('COM1')
+
+        global comLC, comSS
+
+        self.lineLC.setText(comLC)
+        self.lineWVSS.setText(comSS)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setText('Apply')  # Change text from Ok to Apply
 
 #----------------------------------------------------------------------------------
 
+comLC = 'COM5'   # Default LiCor COM port
+comSS = 'COM1'  # Default SS COM port
 
 ## For the main window gui
 # The following allows you to access the auto-generated gui from pyuic5
@@ -88,17 +93,18 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.all_Rbuttons = self.lcRbuttons + self.ssRbuttons
 
     def menuActions(self):
-        self.menuFile.addAction('Exit', self.close).setShortcut('Ctrl+Q')  # add option for exiting program from menubar
+        self.menuFile.addAction('Exit', self.close).setShortcut('Ctrl+X')  # add option for exiting program from menubar
         self.menuHardware.triggered.connect(self.setupGUIclicked)
 
         # Set shortcuts
-        self.menuHardware.setShortcut('Ctrl+H')
+        self.menuHardware.setShortcut('Ctrl+P')
         self.menuRecording.setShortcut('Ctrl+R')
         self.menuRecord.setShortcut('Ctrl+A')
 
     def setupGUIclicked(self):
         ''' Control content from setup_GUI by attempting to initiate instances
             of the LiCor and SpectraSensor'''
+        global comLC, comSS
         dlg = HardwareGUI(self)
         dlg.buttonBox.accepted.connect(dlg.accept)
         dlg.buttonBox.rejected.connect(dlg.reject)
@@ -109,9 +115,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         if result == QtWidgets.QDialog.Accepted:
             '''Try to accept the changes and initialize COM ports.  If unsuccessful,
                show a message box that request cannot be completed'''
-            comLC = dlg.lineLC.text()
-            comSS = dlg.lineWVSS.text()
             try:
+                comLC = dlg.lineLC.text()
                 self.s = ADC.DataQ_DI145(comLC)
                 for button in self.lcRbuttons:
                     button.setEnabled(True)
@@ -120,6 +125,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 print('Could NOT initialize ADC from setupGUIclicked')
 
             try:
+                comSS = dlg.lineWVSS.text()
                 self.ss = WVSS.WVSS_II(comSS)
                 for button in self.ssRbuttons:
                     button.setEnabled(True)
@@ -172,30 +178,41 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             print('WVSS thread could NOT be stopped')
 
     def scanClicked(self):
-        self.s.scan()    # Start scan
+        txtmsg = "Can't establish a connection with the humidity generator, " + \
+        "you may need to unplug and then replug in the DataQ DI-145 then press 'Ctrl+H' to " + \
+        "reconfigure COM port."
 
-        # Start thread
         try:
+            self.s.scan()    # Start scan
+
+            # Start thread
             ## Group of Code base on https://www.youtube.com/watch?v=eYJTcLBQKug
             self.thread = self.s
             self.thread.change_value.connect(self.updateLCD)
             self.thread.heartbeat.connect(self.indicateScan)
             self.thread.start()
             #---------------------------------------------------------------------------------
-            print('LiCor thread started')
         except:
-            print('LiCor thread NOT started')
+            # This means that we've lost comms with device
+            msg = self._error_msg()
+            msg.setText(txtmsg)
+            msg.exec_()
 
     def stopClicked(self):
-        self.s.sts()    # Stop scan
+        txtmsg = "Can't establish a connection with the humidity generator, " + \
+        "you may need to unplug and then replug in the DataQ DI-145 then press 'Ctrl+H' to " + \
+        "reconfigure COM port."
 
-        # Stop thread
         try:
+            # Try to stop scan
+            self.s.sts()    # Stop scan
             self.thread.stop_thread = True
             self.thread.exit()
-            print('LiCor thread stopped')
         except:
-            print('LiCor thread could NOT be stopped')
+            # This means that we've lost comms with device
+            msg = self._error_msg()
+            msg.setText(txtmsg)
+            msg.exec_()
 
     def indicateScan(self, yes_no):
         ''' Connected to heartbeat to tell if we are communicating with devices.'''
@@ -248,14 +265,6 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         checkP = float(self.PressureEdit.text())
         checkT = float(self.TemperatureEdit.text())
 
-        def error_msg():
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Critical)
-            msg.setText('Error')
-            msg.setWindowTitle('Error')
-            return msg
-
-
         # Check pressure
         if 0 < checkP <= 50:
             self.pressure = checkP
@@ -263,8 +272,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             self.pressure = self.old_pressure
             self.PressureEdit.setText(str(self.pressure))
 
-            msg = error_msg()
-            msg.setInformativeText('{} psia is NOT in the range 0-50 psia'.format(checkP))
+            msg = self._error_msg()
+            msg.setText('{} psia is NOT in the range 0-50 psia'.format(checkP))
             msg.exec_()
 
         # Check temperature
@@ -274,8 +283,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             self.temperature = self.old_temperature
             self.TemperatureEdit.setText(str(self.temperature))
 
-            msg = error_msg()
-            msg.setInformativeText('{} °F is NOT in the range -200-200 °F'.format(checkT))
+            msg = self._error_msg()
+            msg.setText('{} °F is NOT in the range -200-200 °F'.format(checkT))
             msg.exec_()
 
         self.old_pressure = self.pressure
@@ -379,6 +388,11 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         # self.CloseButton.clicked.connect(QtWidgets.QApplication.instance().quit)  # close program with button
         self.CloseButton.clicked.connect(QtWidgets.qApp.quit)  # close program with button
 
+    def _error_msg(self):
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Critical)
+        msg.setWindowTitle('Error')
+        return msg
 
 
 if __name__=='__main__':
