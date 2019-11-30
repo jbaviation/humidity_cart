@@ -11,7 +11,7 @@ import sys
 ## For the hardware setup GUI
 # The following allows you to access the auto-generated gui from pyuic5
 import setup_GUI as sgui
-class HardwareGUI(QtWidgets.QDialog, sgui.Ui_Dialog):
+class HardwareGUI(QtWidgets.QDialog, sgui.Ui_dialog):
     def __init__(self, parent):
         super().__init__(parent)
         self.setupUi(self)
@@ -120,9 +120,10 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 self.s = ADC.DataQ_DI145(comLC)
                 for button in self.lcRbuttons:
                     button.setEnabled(True)
-
             except:
-                print('Could NOT initialize ADC from setupGUIclicked')
+                msg = self._error_msg()
+                msg.setText('Could NOT initialize DataQ DI-145 from port {}'.format(comLC))
+                msg.exec_()
 
             try:
                 comSS = dlg.lineWVSS.text()
@@ -130,9 +131,13 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 for button in self.ssRbuttons:
                     button.setEnabled(True)
             except:
-                print('Could NOT initialize WVSS from setupGUIclicked')
+                msg = self._error_msg()
+                msg.setText('Could NOT initialize Water Vapor Monitor System from port {}'.format(comSS))
+                msg.exec_()
 
     def viewFormatting(self):
+        # Change theme
+
         # Change label colors
         for label in self.all_labels:
             label.setStyleSheet('color: black')
@@ -397,6 +402,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
 if __name__=='__main__':
     a = QtWidgets.QApplication(sys.argv)
+    a.setStyle('windowsvista')
+
     app = MainUiClass()
     app.show()
     sys.exit(a.exec_())
