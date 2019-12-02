@@ -55,7 +55,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.addDDOptions()   # add options to dropdown boxes
         self.updateBackgroundConditions()   # set temperature and pressure based on input
         self.defaultDD()   # set default dropdowns
-        self.disableRadioButtons()   # grey out radio buttons before initializing
+        self.editRadioButtons()   # grey out radio buttons before initializing
 
         # Change default formatting
         icon = QtGui.QIcon('icon.jpg')
@@ -136,6 +136,13 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 msg.exec_()
 
     def viewFormatting(self):
+        # Set tooltips
+        self.StartButton.setToolTip('Start scanning the humidity generator')
+        self.StopButton.setToolTip('Stop scanning the humidity generator')
+        self.WVSSstartButton.setToolTip('Start scanning the WVSS')
+        self.WVSSstopButton.setToolTip('Stop scanning the WVSS')
+        self.SetConditionsButton.setToolTip('Conditions entered above are applied')
+
         # Change theme
 
         # Change label colors
@@ -324,8 +331,12 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             unit.setText('')
         elif text == 'Voltage':
             unit.setText('V')
-        elif text == 'PPMv':
+        elif text == 'Water Vapor Concentration':
             unit.setText('H2Oppmv')
+        elif text == 'Gamma':
+            unit.setText('')
+        elif text == 'Air Density':
+            unit.setText('lbm/ft\N{SUPERSCRIPT THREE}')
 
     def updateLCD(self, counts):
         # Calculate various atmospheric conditions
@@ -385,9 +396,9 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             elif box_val == 'Air Density':
                 lcd.display('{:.4f}'.format(round(values[7], 4)))
 
-    def disableRadioButtons(self):
+    def editRadioButtons(self):
         for Rbutton in self.all_Rbuttons:
-            Rbutton.setEnabled(False)
+            Rbutton.setEnabled(False)   # Default disable radio buttons
 
     def closeProgram(self):
         # self.CloseButton.clicked.connect(QtWidgets.QApplication.instance().quit)  # close program with button
