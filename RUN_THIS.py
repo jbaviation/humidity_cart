@@ -3,6 +3,7 @@
 from humref import spectra_equiv
 import ADC
 import WVSS
+import time
 
 ## GUI application------------------------------------------------------------------
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -24,7 +25,7 @@ class HardwareGUI(QtWidgets.QDialog, sgui.Ui_dialog):
 
 #----------------------------------------------------------------------------------
 
-comLC = 'COM5'   # Default LiCor COM port
+comLC = 'COM4'   # Default LiCor COM port
 comSS = 'COM1'  # Default SS COM port
 
 ## For the main window gui
@@ -40,6 +41,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         # Initialize variables
         self.pressure = None  # psi, reference static pressure (set to SL press for now)
         self.temperature = None   # degF, reference static temperature
+        self.values = None    # humidity generator values
+        self.valuesSS = None    # spectra values
         self.setTP()   # set initial values
         self.old_pressure = self.pressure   # in case of needing to revert
         self.old_temperature = self.temperature  # in case of needing to revert
@@ -86,20 +89,42 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         # Go back to original directory
         os.chdir(owd)    # change directory to original working directory
 
-
     def genRecordButton(self):
         # First generate the LED
         self.statusLED.setPixmap(self.offLED)
         self.statusLED.setScaledContents(True)
 
         # Connect button to new function
-        self.recordButton.clicked.connect(self.recordButtonPress)
+        self.recEnabled = False   # initiate variable that tracks if recording is enabled
 
+# NOT SURE WHAT TO DO WITH THIS YET ------------------------------
+        import record
+        self.rec = record.Recording(2)   # create DUMMY instance of Recording
+#-----------------------------------------------------------------
+
+        self.recordButton.clicked.connect(self.recordButtonPress)
+        self.recordStopButton.clicked.connect(self.recordStopButtonPress)
+
+    def recordControls(self):
+        '''Changes components that need to be modified when record changes state'''
+        if self.rec.continuationLC:     # we are in record mode
+            self.statusLED.setPixmap(self.greenLED)
+        else:       # we are not in record mode
+            self.statusLED.setPixmap(self.amberLED)
+
+    def recordStopButtonPress(self):
+        '''Setup record stop button capability'''
+        self.statusLED.setPixmap(self.amberLED)
+
+        self.rec.recEnabled = False          # Indicate we are in record mode
 
     def recordButtonPress(self):
         '''Setup record button capability'''
-        import random
-        self.statusLED.setPixmap(random.choice([self.amberLED, self.greenLED]))
+        self.statusLED.setPixmap(self.greenLED)
+
+        self.rec.recEnabled = True          # Indicate we are in record mode
+        self.rec.time_start = time.time()   # Track start time with button push
+        self.rec.time_end = self.rec.time_start + self.rec.record_length
         print('Record Button Clicked')
 
     def createLists(self):
@@ -249,6 +274,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             ## Group of Code base on https://www.youtube.com/watch?v=eYJTcLBQKug
             self.thread = self.s
             self.thread.change_value.connect(self.updateLCD)
+            # [self.thread.change_value.connect(x) for x in [self.updateLCD, self.captureDataLC]]  # Connect to multiple slots
             self.thread.heartbeat.connect(self.indicateScan)
             self.thread.start()
             #---------------------------------------------------------------------------------
@@ -401,10 +427,15 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         rho = spectra_equiv.density(self.temperature, self.pressure, mmr)
 
         # Combine the calculated values
-        values = [TddegF, mmr, rh, counts, voltage, ppmv, gam, rho]
+        self.values = [TddegF, mmr, rh, counts, voltage, ppmv, gam, rho]
+
+        # Push data to recording
+        self.rec.captureDataLC(self.values)
+        self.recordControls()
 
         # Set each LCD to the respective value based on combobox selection
-        self.box_loop(self.LCDs, values)
+        self.box_loop(self.LCDs, self.values)
+
 
     def updateLCDss(self, raw_string):
         # Convert raw_string to list of values
@@ -419,10 +450,10 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         rho = spectra_equiv.density(self.temperature, self.pressure, mmr)
 
         # Combine the calculated values
-        values = [TddegF, mmr, rh, counts, voltage, ppmv, gam, rho]
+        self.valuesSS = [TddegF, mmr, rh, counts, voltage, ppmv, gam, rho]
 
         # Set each LCD to the respective value based on combobox selection
-        self.box_loop(self.LCDss, values)
+        self.box_loop(self.LCDss, self.valuesSS)
 
     def box_loop(self, LCDS, values):
         for lcd, box in zip(LCDS, self.boxes):

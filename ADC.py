@@ -14,7 +14,7 @@ class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
     change_value = QtCore.pyqtSignal(float)   # Code based on https://www.youtube.com/watch?v=eYJTcLBQKug
     heartbeat = QtCore.pyqtSignal(str)        # Heartbeat to confirm device is connected
 
-    def __init__(self, comm_port='COM5', baud_rate=4800):
+    def __init__(self, comm_port='COM4', baud_rate=4800):
         ''' Initialize instance variable defaults for the DataQ_DI145 class
 
         Variable Descriptions:
