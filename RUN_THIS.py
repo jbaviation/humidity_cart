@@ -464,7 +464,6 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         # Loop to determine what values to put in dataset
         rec_values = []
-        rec_opts = []
         rec_opts = self.rec_defaults + self.rec_options  # Add temp and press as defaults
         for text in rec_opts:
             if text == 'Dew Point':

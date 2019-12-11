@@ -2,7 +2,7 @@
 
 import pandas as pd
 import numpy as np
-import time, os
+import time, datetime, os
 from PyQt5 import QtGui, QtCore
 
 
@@ -27,6 +27,7 @@ class Recording:
         self.time_start = time.time()       # initialize time start
         self.time_end = self.time_start+self.record_length
         self.rdg = init_reading_number      # reading number
+        self.avg_on = True                  # turn on averaging
 
         self.headers = ['Reading','DateTime']  # start with default headers
 
@@ -42,7 +43,7 @@ class Recording:
         # Indicate if recording is enabled and if this is a continuation
         if self.recEnabled and time.time()<=self.time_end:
             # Insert reading num and time into dataset
-            vals.insert(0,time.localtime())
+            vals.insert(0,datetime.datetime.now())
             vals.insert(0,self.rdg)
 
             if self.continuationLC:
@@ -97,6 +98,23 @@ class Recording:
 
 
     def convertToDataFrame(self):
+        # Create initial dataset from dataLC and dataSS
         df = pd.DataFrame(self.dataLC, columns=self.headers)
-        df.iloc(0) = df.mean(axis=0)
-        return df
+
+
+        # Determine what to do with the data based on averaging
+        if self.avg_on:
+            # Work with time first
+            most_recent = df.DateTime.max()   # Take max date for use in averaged data
+            date = most_recent.strftime('%Y-%m-%d')
+            time = most_recent.strftime('%H:%M:%S.%f')
+
+            # Prep to combine averaged data
+            row_name = 'mean'
+            df.loc[row_name] = df.mean(axis=0)   # Average all columns in the last row of the dataframe
+            ini_cols = pd.DataFrame({'Rdg': [self.rdg], 'Date': [date], 'Time': [time]}, index=[row_name])
+            out_df = pd.concat([ini_cols,df.iloc[[-1],2:]], axis=1, sort=False)
+        else:
+            out_df = df
+
+        return out_df
