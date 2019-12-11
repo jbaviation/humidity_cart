@@ -15,11 +15,17 @@ import sys, os
 # The following allows you to access the auto-generated gui from pyuic5
 import record_GUI as rgui
 class RecGUI(QtWidgets.QDialog, rgui.Ui_dialog):
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        self.selected = [self.dpBox,self.rhBox,self.mmrBox,self.vcBox]
+        self.set_selected()
 
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setText('Apply')  # Change text from Ok to Apply
+
+    def set_selected(self):
+        for box in self.selected:
+            box.setChecked(True)
 
 #----------------------------------------------------------------------------------
 
@@ -94,12 +100,11 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def setDefaults(self):
         # Default recording parameters
         self.rec_defaults = ['Temperature', 'Pressure']
-        self.rec_options = ['Dew Point','Mass Mixing Ratio','Relative Humidity','Vapor Concentration',\
+        self.rec_options = ['Dew Point','Relative Humidity','Mass Mixing Ratio','Vapor Concentration',\
             'Gamma','Density','Voltage','Counts']
 
         # Initialize instance of Recording class
         self.rec = record.Recording()
-        self.rec.headers = self.rec.headers + self.rec_defaults + self.rec_options  # set the headers
 
         # Generate the default offLED
         self.statusLED.setPixmap(self.offLED)
@@ -107,6 +112,10 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         # Tell if port configuration is setup correctly
         self.active = False
+
+        # Initialize instance of RecGUI and default checked boxes
+        self.rdlg = RecGUI(self)
+        self.checked = [self.rdlg.dpBox,self.rdlg.rhBox,self.rdlg.mmrBox,self.rdlg.vcBox]
 
     def setupImages(self):
         # Change directory for image
@@ -181,11 +190,24 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.menuRecord.setShortcut('Ctrl+A')
 
     def recordGUIclicked(self):
-        dlg = RecGUI(self)
-        dlg.buttonBox.accepted.connect(dlg.accept)
-        dlg.buttonBox.rejected.connect(dlg.reject)
+        chkboxes = [self.rdlg.dpBox,self.rdlg.rhBox,self.rdlg.mmrBox,self.rdlg.vcBox,\
+            self.rdlg.gamBox,self.rdlg.rhoBox,self.rdlg.voltBox,self.rdlg.cntBox]
+        options = ['Dew Point','Relative Humidity','Mass Mixing Ratio','Vapor Concentration',\
+            'Gamma','Density','Voltage','Counts']
 
-        result = dlg.exec_()
+        # Set all boxes to unchecked
+        for box in chkboxes:
+            box.setChecked(False)
+
+        # Set previously set boxes to checked
+        for box in self.checked:
+            box.setChecked(True)
+
+        # Connect accepted and rejected
+        self.rdlg.buttonBox.accepted.connect(self.rdlg.accept)
+        self.rdlg.buttonBox.rejected.connect(self.rdlg.reject)
+
+        result = self.rdlg.exec_()
         if result == QtWidgets.QDialog.Accepted:
             # Modify record button if one of the devices is setup correctly
             if self.active:
@@ -193,15 +215,23 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 self.recordButton.setEnabled(True)
                 self.recordButton.setToolTip('Press this button to trigger a recording')
                 self.recordStopButton.setEnabled(True)
+
+                # Track output variables that are checked
+                self.rec_options = []
+                self.checked = []
+                for chk, option in zip(chkboxes, options):
+                    if chk.isChecked():
+                        self.rec_options.append(option)
+                        self.checked.append(chk)
+
+                # Set proper headers
+                print(self.rec_options)
+                self.rec.headers = self.rec.iheaders + self.rec_defaults + self.rec_options  # set the headers
             else:
                 self.recordButton.setEnabled(False)
                 self.recordButton.setToolTip('You are no longer connected to a device ' +
                                 'press Ctrl+H to configure devices before recording data')
                 self.recordStopButton.setEnabled(False)
-
-        # This will eventually come from the check boxes but hard coded for now
-        # self.rec_options = ['Dew Point','Mass Mixing Ratio','Relative Humidity','Vapor Concentration',\
-        #     'Gamma','Density','Voltage','Counts']
 
     def setupGUIclicked(self):
         ''' Control content from setup_GUI by attempting to initiate instances

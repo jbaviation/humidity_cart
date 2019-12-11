@@ -32,8 +32,8 @@ class Recording:
         self.rdg = init_reading_number      # initialized reading number
         self._check_for_latest_reading()     # pull in reading from existing file (if exists)
 
-
-        self.headers = ['Reading','DateTime']  # start with default headers
+        self.iheaders = ['Reading','DateTime']  # start with initial headers
+        self.headers = []
 
     def _check_for_latest_reading(self):
         if os.path.isfile(self.filename_ext):
@@ -70,15 +70,25 @@ class Recording:
 
         else:   #  we are not in record mode
             if self.continuationLC:  # we just came out of a record
-                # Notate info about recording
-                print('Recording Captured')
-                print('Data Length = {} rows in {} seconds'.format(len(self.dataLC), time.time()-self.time_start))
+                self.continuationLC = False   # Force out of continuation
 
                 # Go to interpret output function
-                self.interpretOutput()
+                try:
+                    self.interpretOutput()
 
-                # Get ready for next recording
-                self.rdg += 1  # increment reading number
+                    # Notate info about recording
+                    print('Recording Captured')
+                    print('Data Length = {} rows in {} seconds'.format(len(self.dataLC), time.time()-self.time_start))
+
+                    # Get ready for next recording
+                    self.rdg += 1  # increment reading number
+
+                except:  # file is open cannot write so throw an error
+                    msg = common_def.error_msg()
+                    msg.setText('DATA NOT WRITTEN TO FILE:\n\n{} is open; '.format(self.filename_ext) + \
+                                'please close the file before continuing')
+                    msg.exec_()
+
 
             self.continuationLC = False  # turn off continuation
 
@@ -91,14 +101,6 @@ class Recording:
         #  the file and write data to it
         if os.path.isfile(self.filename_ext):  # if the file exists append data (mode='a')
             out_df.to_csv(self.filename_ext, mode='a', index=False, header=False)
-
-            # try:  # to append data
-            #     out_df.to_csv(self.filename_ext, mode='a', index=False, header=False)
-            # except:  # file is open cannot write so throw an error
-            #     msg = common_def.error_msg()
-            #     msg.setText('DATA NOT WRITTEN TO FILE:\n\n{} is open; '.format(self.filename) + \
-            #                 'please close the file before continuing')
-            #     msg.exec_()
         else:   # file does NOT exist, so create it and write the first point with header
             out_df.to_csv(self.filename_ext, mode='w', index=False, header=True)
 
@@ -113,7 +115,6 @@ class Recording:
     def convertToDataFrame(self, dataArray):
         # Create initial dataset from dataLC and dataSS
         df = pd.DataFrame(dataArray, columns=self.headers)
-
 
         # Determine what to do with the data based on averaging
         if self.avg_on:

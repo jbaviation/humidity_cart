@@ -1693,6 +1693,8 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionScan_All"/>
+    <addaction name="actionStop_Scan_All"/>
     <addaction name="menuRecord"/>
    </widget>
    <addaction name="menuFile"/>
@@ -1712,6 +1714,16 @@
   <action name="menuRecord">
    <property name="text">
     <string>Record</string>
+   </property>
+  </action>
+  <action name="actionScan_All">
+   <property name="text">
+    <string>Scan All</string>
+   </property>
+  </action>
+  <action name="actionStop_Scan_All">
+   <property name="text">
+    <string>Stop All</string>
    </property>
   </action>
  </widget>

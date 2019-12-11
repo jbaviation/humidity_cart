@@ -590,8 +590,14 @@ class Ui_MainWindow(object):
         self.menuRecording.setObjectName("menuRecording")
         self.menuRecord = QtWidgets.QAction(MainWindow)
         self.menuRecord.setObjectName("menuRecord")
+        self.actionScan_All = QtWidgets.QAction(MainWindow)
+        self.actionScan_All.setObjectName("actionScan_All")
+        self.actionStop_Scan_All = QtWidgets.QAction(MainWindow)
+        self.actionStop_Scan_All.setObjectName("actionStop_Scan_All")
         self.menuSetup.addAction(self.menuHardware)
         self.menuSetup.addAction(self.menuRecording)
+        self.menuFile.addAction(self.actionScan_All)
+        self.menuFile.addAction(self.actionStop_Scan_All)
         self.menuFile.addAction(self.menuRecord)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuSetup.menuAction())
@@ -637,6 +643,8 @@ class Ui_MainWindow(object):
         self.menuHardware.setText(_translate("MainWindow", "Port Configuration"))
         self.menuRecording.setText(_translate("MainWindow", "Recording Configuration"))
         self.menuRecord.setText(_translate("MainWindow", "Record"))
+        self.actionScan_All.setText(_translate("MainWindow", "Scan All"))
+        self.actionStop_Scan_All.setText(_translate("MainWindow", "Stop All"))
 
 
 if __name__ == "__main__":
