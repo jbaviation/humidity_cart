@@ -1,6 +1,7 @@
 ''''Use this program to generate all references needed to run a spectra sensor validation.'''
 
 from humref import spectra_equiv
+import common_def
 import ADC
 import WVSS
 import record
@@ -224,7 +225,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 for button in self.lcRbuttons:
                     button.setEnabled(True)
             except:
-                msg = self._error_msg()
+                msg = common_def.error_msg()
                 msg.setText('Could NOT initialize DataQ DI-145 from port {}'.format(comLC))
                 msg.exec_()
 
@@ -235,7 +236,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 for button in self.ssRbuttons:
                     button.setEnabled(True)
             except:
-                msg = self._error_msg()
+                msg = common_def.error_msg()
                 msg.setText('Could NOT initialize Water Vapor Monitor System from port {}'.format(comSS))
                 msg.exec_()
 
@@ -316,7 +317,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             #---------------------------------------------------------------------------------
         except:
             # This means that we've lost comms with device
-            msg = self._error_msg()
+            msg = common_def.error_msg()
             msg.setText(txtmsg)
             msg.exec_()
 
@@ -332,7 +333,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             self.thread.exit()
         except:
             # This means that we've lost comms with device
-            msg = self._error_msg()
+            msg = common_def.error_msg()
             msg.setText(txtmsg)
             msg.exec_()
 
@@ -394,7 +395,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             self.pressure = self.old_pressure
             self.PressureEdit.setText(str(self.pressure))
 
-            msg = self._error_msg()
+            msg = common_def.error_msg()
             msg.setText('{} psia is NOT in the range 0-50 psia'.format(checkP))
             msg.exec_()
 
@@ -405,7 +406,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             self.temperature = self.old_temperature
             self.TemperatureEdit.setText(str(self.temperature))
 
-            msg = self._error_msg()
+            msg = common_def.error_msg()
             msg.setText('{} °F is NOT in the range -200-200 °F'.format(checkT))
             msg.exec_()
 
@@ -544,12 +545,6 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def closeProgram(self):
         # self.CloseButton.clicked.connect(QtWidgets.QApplication.instance().quit)  # close program with button
         self.CloseButton.clicked.connect(QtWidgets.qApp.quit)  # close program with button
-
-    def _error_msg(self):
-        msg = QtWidgets.QMessageBox()
-        msg.setIcon(QtWidgets.QMessageBox.Critical)
-        msg.setWindowTitle('Error')
-        return msg
 
 
 # This class is used more of a demostration to show how to configure classes which

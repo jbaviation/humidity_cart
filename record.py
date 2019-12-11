@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 import time, datetime, os
+import common_def
 from PyQt5 import QtGui, QtCore
 
 
@@ -18,6 +19,7 @@ class Recording:
             init_reading_number = starting reading number'''
         self.record_length = record_length
         self.filename = filename
+        self.filename_ext = filename+'.csv'
 
         # Set adjustable self variables
         self.recEnabled = False
@@ -26,10 +28,17 @@ class Recording:
 
         self.time_start = time.time()       # initialize time start
         self.time_end = self.time_start+self.record_length
-        self.rdg = init_reading_number      # reading number
         self.avg_on = True                  # turn on averaging
+        self.rdg = init_reading_number      # initialized reading number
+        self._check_for_latest_reading()     # pull in reading from existing file (if exists)
+
 
         self.headers = ['Reading','DateTime']  # start with default headers
+
+    def _check_for_latest_reading(self):
+        if os.path.isfile(self.filename_ext):
+            rdg_from_file = int(pd.read_csv(self.filename_ext, usecols=['Reading']).max())
+            self.rdg = rdg_from_file+1
 
     def captureDataSS(self, values):
         pass
@@ -76,18 +85,22 @@ class Recording:
     def interpretOutput(self):
         '''After reading has been captured, this method evaluates what to do with it.'''
         # Convert to dataframe
-        out_df = self.convertToDataFrame()
+        out_df = self.convertToDataFrame(self.dataLC)
 
         # If a file has already been created append data to it, otherwise create
         #  the file and write data to it
-        if os.path.isfile(self.filename) or os.path.isfile(self.filename+'.csv'):  # if the file exists
-            # f = open(self.filename,'a')  # open the file and append to it
-            # f.write(self.df)
-            out_df.to_csv(self.filename+'.csv', index=False)
-        else:   # file does NOT exist, so create it and write the first point
-            # f = open(self.filename,'w')  # open the file to write
-            # f.write(self.df)
-            out_df.to_csv(self.filename+'.csv', index=False)
+        if os.path.isfile(self.filename_ext):  # if the file exists append data (mode='a')
+            out_df.to_csv(self.filename_ext, mode='a', index=False, header=False)
+
+            # try:  # to append data
+            #     out_df.to_csv(self.filename_ext, mode='a', index=False, header=False)
+            # except:  # file is open cannot write so throw an error
+            #     msg = common_def.error_msg()
+            #     msg.setText('DATA NOT WRITTEN TO FILE:\n\n{} is open; '.format(self.filename) + \
+            #                 'please close the file before continuing')
+            #     msg.exec_()
+        else:   # file does NOT exist, so create it and write the first point with header
+            out_df.to_csv(self.filename_ext, mode='w', index=False, header=True)
 
         # f.close()
 
@@ -97,9 +110,9 @@ class Recording:
 
 
 
-    def convertToDataFrame(self):
+    def convertToDataFrame(self, dataArray):
         # Create initial dataset from dataLC and dataSS
-        df = pd.DataFrame(self.dataLC, columns=self.headers)
+        df = pd.DataFrame(dataArray, columns=self.headers)
 
 
         # Determine what to do with the data based on averaging
@@ -112,8 +125,9 @@ class Recording:
             # Prep to combine averaged data
             row_name = 'mean'
             df.loc[row_name] = df.mean(axis=0)   # Average all columns in the last row of the dataframe
-            ini_cols = pd.DataFrame({'Rdg': [self.rdg], 'Date': [date], 'Time': [time]}, index=[row_name])
-            out_df = pd.concat([ini_cols,df.iloc[[-1],2:]], axis=1, sort=False)
+            ini_cols = pd.DataFrame({'Reading': [self.rdg], 'Date': [date], 'Time': [time]}, index=[row_name])  # Initial (fixed) columns
+            sel_cols = df.iloc[[-1],2:]   # Last row and Columns that were selected by the user
+            out_df = pd.concat([ini_cols,sel_cols], axis=1, sort=False)
         else:
             out_df = df
 
