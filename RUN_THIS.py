@@ -20,12 +20,32 @@ class RecGUI(QtWidgets.QDialog, rgui.Ui_dialog):
         self.setupUi(self)
         self.selected = [self.dpBox,self.rhBox,self.mmrBox,self.vcBox]
         self.set_selected()
+        self.set_defaults()
+        self.toolButton.clicked.connect(self.toolButtonClicked)
 
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setText('Apply')  # Change text from Ok to Apply
 
     def set_selected(self):
         for box in self.selected:
             box.setChecked(True)
+
+    def set_defaults(self):
+        # Record time
+        self.avgRecEdit.setText('10')
+
+        # Filename
+        date = time.strftime('%Y%m%d')
+        default_filename = 'humidity_cart_{}'.format(date)
+        self.filenameEdit.setText('{}'.format(default_filename))
+
+        # Output file location
+        self.outLocEdit.setText('{}'.format(os.getcwd()))
+
+
+    def toolButtonClicked(self):
+        ''' Open QFileDialog when the toolButton is clicked '''
+        directory = str(QtWidgets.QFileDialog.getExistingDirectory())
+        self.outLocEdit.setText('{}'.format(directory))
 
 #----------------------------------------------------------------------------------
 
@@ -194,14 +214,6 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             self.rdlg.gamBox,self.rdlg.rhoBox,self.rdlg.voltBox,self.rdlg.cntBox]
         options = ['Dew Point','Relative Humidity','Mass Mixing Ratio','Vapor Concentration',\
             'Gamma','Density','Voltage','Counts']
-
-        # Set all boxes to unchecked
-        for box in chkboxes:
-            box.setChecked(False)
-
-        # Set previously set boxes to checked
-        for box in self.checked:
-            box.setChecked(True)
 
         # Connect accepted and rejected
         self.rdlg.buttonBox.accepted.connect(self.rdlg.accept)
