@@ -13,11 +13,14 @@ import sys, os
 
 ## For the hardware setup GUI
 # The following allows you to access the auto-generated gui from pyuic5
-import record_GUI as rgui
+from GUIs import record_GUI as rgui
 class RecGUI(QtWidgets.QDialog, rgui.Ui_dialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+
+        global avgLength, fname, outLoc
+
         self.selected = [self.dpBox,self.rhBox,self.mmrBox,self.vcBox]
         self.set_selected()
         self.set_defaults()
@@ -31,28 +34,26 @@ class RecGUI(QtWidgets.QDialog, rgui.Ui_dialog):
 
     def set_defaults(self):
         # Record time
-        self.avgRecEdit.setText('10')
+        self.avgRecEdit.setText('{}'.format(avgLength))
 
         # Filename
-        date = time.strftime('%Y%m%d')
-        default_filename = 'humidity_cart_{}'.format(date)
-        self.filenameEdit.setText('{}'.format(default_filename))
+        self.filenameEdit.setText('{}'.format(fname))
 
         # Output file location
-        self.outLocEdit.setText('{}'.format(os.getcwd()))
+        self.outLocEdit.setText('{}'.format(outLoc))
 
 
     def toolButtonClicked(self):
         ''' Open QFileDialog when the toolButton is clicked '''
-        directory = str(QtWidgets.QFileDialog.getExistingDirectory())
-        self.outLocEdit.setText('{}'.format(directory))
+        outLoc = str(QtWidgets.QFileDialog.getExistingDirectory())
+        self.outLocEdit.setText('{}'.format(outLoc))
 
 #----------------------------------------------------------------------------------
 
 
 ## For the hardware setup GUI
 # The following allows you to access the auto-generated gui from pyuic5
-import setup_GUI as sgui
+from GUIs import setup_GUI as sgui
 class HardwareGUI(QtWidgets.QDialog, sgui.Ui_dialog):
     def __init__(self, parent):
         super().__init__(parent)
@@ -66,12 +67,19 @@ class HardwareGUI(QtWidgets.QDialog, sgui.Ui_dialog):
 
 #----------------------------------------------------------------------------------
 
+# Global variables go here
 comLC = 'COM4'   # Default LiCor COM port
 comSS = 'COM1'  # Default SS COM port
 
+avgLength = 10   # Number of seconds to record
+fname = 'humidity_cart_{}'.format(time.strftime('%Y%m%d'))   # Filename of output file
+outLoc = os.getcwd()     # Location of output file
+
+
+
 ## For the main window gui
 # The following allows you to access the auto-generated gui from pyuic5
-import basic_GUI as gui
+from GUIs import basic_GUI as gui
 class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def __init__(self, parent=None):
         # super(MainUiClass, self).__init__(parent)
@@ -90,6 +98,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         self.thread = None   # Humidity generator thread
         self.threadSS = None # WVSS thread
+
+        # self.tmpOpen()      # Open temp file to check for last file that was saved
 
         # Put similar widgets in lists
         self.createLists()
@@ -136,6 +146,10 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         # Initialize instance of RecGUI and default checked boxes
         self.rdlg = RecGUI(self)
         self.checked = [self.rdlg.dpBox,self.rdlg.rhBox,self.rdlg.mmrBox,self.rdlg.vcBox]
+        self.chkboxes = [self.rdlg.dpBox,self.rdlg.rhBox,self.rdlg.mmrBox,self.rdlg.vcBox,\
+            self.rdlg.gamBox,self.rdlg.rhoBox,self.rdlg.voltBox,self.rdlg.cntBox]
+        self.options = ['Dew Point','Relative Humidity','Mass Mixing Ratio','Vapor Concentration',\
+            'Gamma','Density','Voltage','Counts']
 
     def setupImages(self):
         # Change directory for image
@@ -176,7 +190,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.rec.recEnabled = True          # Indicate we are in record mode
         self.rec.time_start = time.time()   # Track start time with button push
         self.rec.time_end = self.rec.time_start + self.rec.record_length
-        print('Record Button Clicked')
+        print('Recording for {} seconds'.format(self.rec.record_length))
 
     def createLists(self):
         self.DDitems = ['Dew Point','Mass Mixing Ratio','Relative Humidity','Water Vapor Concentration',\
@@ -210,10 +224,10 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.menuRecord.setShortcut('Ctrl+A')
 
     def recordGUIclicked(self):
-        chkboxes = [self.rdlg.dpBox,self.rdlg.rhBox,self.rdlg.mmrBox,self.rdlg.vcBox,\
-            self.rdlg.gamBox,self.rdlg.rhoBox,self.rdlg.voltBox,self.rdlg.cntBox]
-        options = ['Dew Point','Relative Humidity','Mass Mixing Ratio','Vapor Concentration',\
-            'Gamma','Density','Voltage','Counts']
+        global avgLength, fname, outLoc
+
+        # Read from temp file to determine defaults
+        self.tmpOpen('read')
 
         # Connect accepted and rejected
         self.rdlg.buttonBox.accepted.connect(self.rdlg.accept)
@@ -221,6 +235,24 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         result = self.rdlg.exec_()
         if result == QtWidgets.QDialog.Accepted:
+            # Update global variables from dialog box inputs if in valid range
+            if 3 <= float(self.rdlg.avgRecEdit.text()) <= 30:
+                avgLength = float(self.rdlg.avgRecEdit.text())
+            else:
+                msg = common_def.error_msg()
+                msg.setText('Please enter an averaged reading length between 3-30 seconds')
+                msg.exec_()
+
+            fname = self.rdlg.filenameEdit.text()
+            outLoc = self.rdlg.outLocEdit.text()
+
+            # Set record length, filename and filelocation from the dialog box
+            self.rec.record_length = avgLength
+            self.rec.filename = fname; self.rec.fileLoc = outLoc
+            self.rec.getFullFile()
+
+            print('File to be saved as: {}'.format(self.rec.full_filename))
+
             # Modify record button if one of the devices is setup correctly
             if self.active:
                 self.genRecordButton()   # generate the record button from instance of RecordButton class
@@ -231,7 +263,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 # Track output variables that are checked
                 self.rec_options = []
                 self.checked = []
-                for chk, option in zip(chkboxes, options):
+                for chk, option in zip(self.chkboxes, self.options):
                     if chk.isChecked():
                         self.rec_options.append(option)
                         self.checked.append(chk)
@@ -241,9 +273,12 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 self.rec.headers = self.rec.iheaders + self.rec_defaults + self.rec_options  # set the headers
             else:
                 self.recordButton.setEnabled(False)
-                self.recordButton.setToolTip('You are no longer connected to a device ' +
-                                'press Ctrl+H to configure devices before recording data')
+                self.recordButton.setToolTip('You are not configured press Ctrl+P first to ' +
+                                'configure the devices, then press Ctrl+R to configure recordings')
                 self.recordStopButton.setEnabled(False)
+
+            # Store data from this editing of the record GUI
+            self.tmpOpen('write')
 
     def setupGUIclicked(self):
         ''' Control content from setup_GUI by attempting to initiate instances
@@ -534,7 +569,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         # Push data to recording
         self.rec.captureDataLC(rec_values)
-        self.recordControls()
+        self.recordControls()    # change recording light
 
         # Combine the calculated values for live updates
         values = [TddegF, mmr, rh, counts, voltage, ppmv, gam, rho]
@@ -584,6 +619,63 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         for Rbutton in self.all_Rbuttons:
             Rbutton.setEnabled(False)   # Default disable radio buttons
 
+    def chkbox(self, list_checkboxes):
+        '''Reads from tmp file to determine what should be checked'''
+        [box.setChecked(False) for box in self.chkboxes]  # uncheck all boxes first
+        for box in list_checkboxes:
+            if box == 'Dew Point':
+                self.rdlg.dpBox.setChecked(True)
+            elif box == 'Mass Mixing Ratio':
+                self.rdlg.mmrBox.setChecked(True)
+            elif box == 'Relative Humidity':
+                self.rdlg.rhBox.setChecked(True)
+            elif box == 'Counts':
+                self.rdlg.cntBox.setChecked(True)
+            elif box == 'Voltage':
+                self.rdlg.voltBox.setChecked(True)
+            elif box == 'Vapor Concentration':
+                self.rdlg.vcBox.setChecked(True)
+            elif box == 'Gamma':
+                self.rdlg.gamBox.setChecked(True)
+            elif box == 'Density':
+                self.rdlg.rhoBox.setChecked(True)
+
+    def tmpOpen(self, read_write):
+        '''read_write is a string that is = either "read" or "write" '''
+        # global avgLength, fname, outLoc
+
+        # If selected to write, this happens after recGUI has been accepted
+        if read_write == 'write':
+            fileLoc = self.rec.fileLoc[0:-1] if self.rec.fileLoc[-1]=='\\' else self.rec.fileLoc
+
+            timeval = [str(time.strftime('%Y%m%d_%H%M%S'))]
+            recvals = [str(i) for i in [self.rec.record_length, self.rec.filename, fileLoc]]
+            optvals = [str(i) for i in self.rec_options]
+            csvals =  ','.join(timeval+recvals+optvals)
+
+            f = open('tmp.txt','w')
+            f.write(csvals)
+            f.close()
+
+        # If selected to read, which happens when recGUI has been opened
+        elif read_write == 'read':
+            try:
+                f = open('tmp.txt','r')
+                csvals = f.read().split(',')
+
+                # Apply fill in blanks
+                self.rdlg.avgRecEdit.setText(str(csvals[1]))
+                self.rdlg.filenameEdit.setText(csvals[2])
+                self.rdlg.outLocEdit.setText(csvals[3])
+
+                # Apply checkboxes
+                self.chkbox(csvals[4:])
+
+                f.close()
+
+            except:
+                pass  # file probably doesn't exist
+
     def closeProgram(self):
         # self.CloseButton.clicked.connect(QtWidgets.QApplication.instance().quit)  # close program with button
         self.CloseButton.clicked.connect(QtWidgets.qApp.quit)  # close program with button
@@ -603,6 +695,15 @@ class RecordButton(QtWidgets.QPushButton):
 
     color = QtCore.pyqtProperty(QtGui.QColor, fset=_set_color)
 
+# The following is to guarantee that all processes are killed, find it here:
+# https://stackoverflow.com/questions/22291434/pyqt-application-closes-successfully-but-process-is-not-killed
+import psutil
+def kill_proc_tree(pid, including_parent=True):
+    parent = psutil.Process(pid)
+    for child in parent.children(recursive=True):
+        child.kill()
+    if including_parent:
+        parent.kill()
 
 if __name__=='__main__':
     a = QtWidgets.QApplication(sys.argv)
@@ -617,3 +718,6 @@ if __name__=='__main__':
     app = MainUiClass()
     app.show()
     sys.exit(a.exec_())
+
+    me = os.getpid()
+    kill_proc_tree(me)

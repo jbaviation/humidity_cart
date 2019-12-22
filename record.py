@@ -10,7 +10,7 @@ from PyQt5 import QtGui, QtCore
 
 class Recording:
     date = time.strftime('%Y%m%d')
-    def __init__(self, record_length=2, filename='humidity_cart_{}'.format(date),\
+    def __init__(self, record_length=10, filename='humidity_cart_{}'.format(date),\
                   init_reading_number=1):
         super(Recording, self).__init__()
         '''Set input variables based on inputs
@@ -19,7 +19,8 @@ class Recording:
             init_reading_number = starting reading number'''
         self.record_length = record_length
         self.filename = filename
-        self.filename_ext = filename+'.csv'
+        self.fileLoc = os.getcwd()
+        self.getFullFile()
 
         # Set adjustable self variables
         self.recEnabled = False
@@ -35,9 +36,21 @@ class Recording:
         self.iheaders = ['Reading','DateTime']  # start with initial headers
         self.headers = []
 
+    def getFullFile(self):
+        # If .csv is in filename, strip it out
+        if '.csv' in self.filename:
+            self.filename = self.filename[0:self.filename.find('.csv')]
+
+        # If fileLoc doesn't end with \ then append it
+        if self.fileLoc[-1] != '\\':
+            self.fileLoc = self.fileLoc + '\\'
+
+        # Finally, combine all necessary elements of filename into full_filename
+        self.full_filename = self.fileLoc + self.filename + '.csv'
+
     def _check_for_latest_reading(self):
-        if os.path.isfile(self.filename_ext):
-            rdg_from_file = int(pd.read_csv(self.filename_ext, usecols=['Reading']).max())
+        if os.path.isfile(self.full_filename):
+            rdg_from_file = int(pd.read_csv(self.full_filename, usecols=['Reading']).max())
             self.rdg = rdg_from_file+1
 
     def captureDataSS(self, values):
@@ -99,18 +112,10 @@ class Recording:
 
         # If a file has already been created append data to it, otherwise create
         #  the file and write data to it
-        if os.path.isfile(self.filename_ext):  # if the file exists append data (mode='a')
-            out_df.to_csv(self.filename_ext, mode='a', index=False, header=False)
+        if os.path.isfile(self.full_filename):  # if the file exists append data (mode='a')
+            out_df.to_csv(self.full_filename, mode='a', index=False, header=False)
         else:   # file does NOT exist, so create it and write the first point with header
-            out_df.to_csv(self.filename_ext, mode='w', index=False, header=True)
-
-        # f.close()
-
-
-        # Determine the output option (start with averaged)
-
-
-
+            out_df.to_csv(self.full_filename, mode='w', index=False, header=True)
 
     def convertToDataFrame(self, dataArray):
         # Create initial dataset from dataLC and dataSS
