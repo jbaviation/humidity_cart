@@ -1,0 +1,1 @@
+20191223_130105,10.0,humidity_cart,C:/Users/analysis/Documents/humidity_cart/data,Dew Point,Relative Humidity,Mass Mixing Ratio,Vapor Concentration,Gamma,Density,Voltage,Counts

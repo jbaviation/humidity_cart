@@ -90,8 +90,6 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         # Initialize variables
         self.pressure = None  # psi, reference static pressure (set to SL press for now)
         self.temperature = None   # degF, reference static temperature
-        self.values = None    # humidity generator values
-        self.valuesSS = None    # spectra values
         self.setTP()   # set initial values
         self.old_pressure = self.pressure   # in case of needing to revert
         self.old_temperature = self.temperature  # in case of needing to revert
@@ -172,7 +170,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
     def recordControls(self):
         '''Changes components that need to be modified when record changes state'''
-        if self.rec.continuationLC:     # we are in record mode
+        if self.rec.continuationLC or self.rec.continuationSS:     # we are in record mode
             self.statusLED.setPixmap(self.greenLED)
         else:       # we are not in record mode
             self.statusLED.setPixmap(self.amberLED)
@@ -269,8 +267,9 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                         self.checked.append(chk)
 
                 # Set proper headers
-                print(self.rec_options)
+                # print(self.rec_options)
                 self.rec.headers = self.rec.iheaders + self.rec_defaults + self.rec_options  # set the headers
+                print('rec.headers = {}'.format(self.rec.headers))
             else:
                 self.recordButton.setEnabled(False)
                 self.recordButton.setToolTip('You are not configured press Ctrl+P first to ' +
@@ -378,7 +377,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
     def scanClicked(self):
         txtmsg = "Can't establish a connection with the humidity generator, " + \
-        "you may need to unplug and then replug in the DataQ DI-145 then press 'Ctrl+H' to " + \
+        "you may need to unplug and then replug in the DataQ DI-145 then press 'Ctrl+P' to " + \
         "reconfigure COM port."
 
         try:
@@ -541,6 +540,20 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         rho = spectra_equiv.density(self.temperature, self.pressure, mmr)
 
         # Loop to determine what values to put in dataset
+        rec_values = self.rec_data(TddegF,mmr,rh,counts,voltage,ppmv,gam,rho)
+
+        # Push data to recording
+        self.rec.captureDataLC(rec_values)
+        self.recordControls()    # change recording light
+
+        # Combine the calculated values for live updates
+        values = [TddegF, mmr, rh, counts, voltage, ppmv, gam, rho]
+
+        # Set each LCD to the respective value based on combobox selection
+        self.box_loop(self.LCDs, values)
+
+    def rec_data(self,TddegF,mmr,rh,counts,voltage,ppmv,gam,rho):
+        # Loop to determine what values to put in dataset
         rec_values = []
         rec_opts = self.rec_defaults + self.rec_options  # Add temp and press as defaults
         for text in rec_opts:
@@ -566,16 +579,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 rec_values.append(self.pressure)
             else:
                 rec_values.append(-9999.99)
-
-        # Push data to recording
-        self.rec.captureDataLC(rec_values)
-        self.recordControls()    # change recording light
-
-        # Combine the calculated values for live updates
-        values = [TddegF, mmr, rh, counts, voltage, ppmv, gam, rho]
-
-        # Set each LCD to the respective value based on combobox selection
-        self.box_loop(self.LCDs, values)
+        return rec_values
 
     def updateLCDss(self, raw_string):
         # Convert raw_string to list of values
@@ -589,11 +593,18 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         gam = spectra_equiv.gamma(self.temperature, self.pressure, mmr)
         rho = spectra_equiv.density(self.temperature, self.pressure, mmr)
 
+        # Loop to determine what values to put in dataset
+        rec_values = self.rec_data(TddegF,mmr,rh,counts,voltage,ppmv,gam,rho)
+
+        # Push data to recording
+        self.rec.captureDataSS(rec_values)
+        self.recordControls()    # change recording light
+
         # Combine the calculated values
-        self.valuesSS = [TddegF, mmr, rh, counts, voltage, ppmv, gam, rho]
+        values = [TddegF, mmr, rh, counts, voltage, ppmv, gam, rho]
 
         # Set each LCD to the respective value based on combobox selection
-        self.box_loop(self.LCDss, self.valuesSS)
+        self.box_loop(self.LCDss, values)
 
     def box_loop(self, LCDS, values):
         for lcd, box in zip(LCDS, self.boxes):
