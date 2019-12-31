@@ -7,7 +7,6 @@ import common_def
 from PyQt5 import QtGui, QtCore
 
 
-
 class Recording:
     date = time.strftime('%Y%m%d')
     def __init__(self, record_length=10, filename='humidity_cart_{}'.format(date),\
@@ -29,6 +28,7 @@ class Recording:
 
         self.time_start = time.time()       # initialize time start
         self.time_end = self.time_start+self.record_length
+        self.time_last_increment = time.time()  # initialize time of last incr
         self.avg_on = True                  # turn on averaging
         self.rdg = init_reading_number      # initialized reading number
         self.incr = False                   # initialize incrementer
@@ -42,15 +42,9 @@ class Recording:
         if '.csv' in self.filename:
             self.filename = self.filename[0:self.filename.find('.csv')]
 
-        # If fileLoc doesn't end with \ then append it
-        try:
-            if self.fileLoc[-1] != '\\':
-                self.fileLoc = self.fileLoc + '\\'
-        except:
-            self.fileLoc = os.getcwd() + '\\'
 
-        # Finally, combine all necessary elements of filename into full_filename
-        self.full_filename = self.fileLoc + self.filename + '.csv'
+        # Combine all necessary elements of filename into full_filename
+        self.full_filename = os.path.join(self.fileLoc,self.filename+'.csv')
 
     def _check_for_latest_reading(self):
         if os.path.isfile(self.full_filename):
@@ -96,6 +90,7 @@ class Recording:
 
                     # Get ready for next recording
                     self.incr = True  # increment reading number
+                    self.time_last_increment = time.time()
 
                 except:  # file is open cannot write so throw an error
                     msg = common_def.error_msg()
@@ -105,11 +100,15 @@ class Recording:
 
             self.continuationSS = False  # turn off continuation
 
-        # Use here only because this is the last to be run during a recording
-        if self.incr:
+        # Check if we should increment reading number
+        self.checkIncrement()
+
+
+    def checkIncrement(self):
+        time_since_last_increment = time.time() - self.time_last_increment
+        if self.incr and time_since_last_increment > 4:
             self.rdg += 1   # increment reading number
             self.incr = False
-
 
 
     def captureDataLC(self, values):
@@ -151,6 +150,7 @@ class Recording:
 
                     # Get ready for next recording
                     self.incr = True  # increment reading number
+                    self.time_last_increment = time.time()
 
                 except:  # file is open cannot write so throw an error
                     msg = common_def.error_msg()
@@ -160,6 +160,9 @@ class Recording:
 
 
             self.continuationLC = False  # turn off continuation
+
+        # Check if we should increment reading number
+        self.checkIncrement()
 
     def interpretOutput(self, data, src):
         '''After reading has been captured, this method evaluates what to do with it.'''
@@ -184,7 +187,6 @@ class Recording:
             date = most_recent.strftime('%Y-%m-%d')
             Time = most_recent.strftime('%H:%M:%S.%f')
 
-            print('time_start = {}, type = {}'.format(self.time_start,type(self.time_start)))
             rec_time = time.time() - self.time_start
 
             # Prep to combine averaged data

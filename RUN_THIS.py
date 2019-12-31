@@ -159,6 +159,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.amberLED = QtGui.QPixmap('amber_led.png')
         self.offLED =   QtGui.QPixmap('off_led.png')
 
+        self.stopSign = QtGui.QPixmap('stopsign.png')
+
         # Go back to original directory
         os.chdir(owd)    # change directory to original working directory
 
@@ -217,7 +219,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.menuRecording.triggered.connect(self.recordGUIclicked)
 
         # Set shortcuts
-        self.menuHardware.setShortcut('Ctrl+P')
+        self.menuHardware.setShortcut('Ctrl+D')
         self.menuRecording.setShortcut('Ctrl+R')
         self.menuRecord.setShortcut('Ctrl+A')
 
@@ -339,7 +341,10 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         # Record button
         self.recordButton.setEnabled(False)
         self.recordButton.setToolTip('Press Ctrl+H to configure devices before recording data')
-        self.recordStopButton.setEnabled(False)
+
+        # TEMP GENERATE secondary stop button
+        self.recordStopButton = PicButton(self.stopSign, parent=self.groupBox)
+        self.recordStopButton.setGeometry(QtCore.QRect(155,25,35,35))
 
     def addDDOptions(self):
         ''' Add all options to all dropdown boxes'''
@@ -657,10 +662,11 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         # If selected to write, this happens after recGUI has been accepted
         if read_write == 'write':
-            fileLoc = self.rec.fileLoc[0:-1] if self.rec.fileLoc[-1]=='\\' else self.rec.fileLoc
+            fileLoc = self.rec.fileLoc
 
             timeval = [str(time.strftime('%Y%m%d_%H%M%S'))]
-            recvals = [str(i) for i in [self.rec.record_length, self.rec.filename, fileLoc]]
+            recvals = [str(i) for i in \
+                       [self.rec.rdg, self.rec.record_length, self.rec.filename, fileLoc]]
             optvals = [str(i) for i in self.rec_options]
             csvals =  ','.join(timeval+recvals+optvals)
 
@@ -675,12 +681,13 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 csvals = f.read().split(',')
 
                 # Apply fill in blanks
-                self.rdlg.avgRecEdit.setText(str(csvals[1]))
-                self.rdlg.filenameEdit.setText(csvals[2])
-                self.rdlg.outLocEdit.setText(csvals[3])
+                # self.rec.rdg = int(csvals[1])
+                self.rdlg.avgRecEdit.setText(str(csvals[2]))
+                self.rdlg.filenameEdit.setText(csvals[3])
+                self.rdlg.outLocEdit.setText(csvals[4])
 
                 # Apply checkboxes
-                self.chkbox(csvals[4:])
+                self.chkbox(csvals[5:])
 
                 f.close()
 
@@ -705,6 +712,19 @@ class RecordButton(QtWidgets.QPushButton):
         self.setPalette(palette)
 
     color = QtCore.pyqtProperty(QtGui.QColor, fset=_set_color)
+
+# Create an image pushbutton
+class PicButton(QtWidgets.QAbstractButton):
+    def __init__(self, pixmap, parent=None):
+        super(PicButton, self).__init__(parent)
+        self.pixmap = pixmap
+
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        painter.drawPixmap(event.rect(), self.pixmap)
+
+    def sizeHint(self):
+        return self.pixmap.size()
 
 # The following is to guarantee that all processes are killed, find it here:
 # https://stackoverflow.com/questions/22291434/pyqt-application-closes-successfully-but-process-is-not-killed
