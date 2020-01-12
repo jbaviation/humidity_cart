@@ -1,1 +1,1 @@
-20191231_074850,1,10.0,humidity_cart,C:/Users/jborman/Documents/Python/humidity_cart/data,Dew Point,Relative Humidity,Mass Mixing Ratio,Vapor Concentration
+20200111_222911,1,10.0,humidity_cart,C:/Users/jborman/Documents/Data/Humidity,Dew Point,Relative Humidity,Mass Mixing Ratio,Vapor Concentration
