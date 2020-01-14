@@ -12,6 +12,7 @@ from PyQt5 import QtGui, QtCore
 class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
     # Declare signal variables for the class
     change_value = QtCore.pyqtSignal(float)   # Code based on https://www.youtube.com/watch?v=eYJTcLBQKug
+    change_value_temp = QtCore.pyqtSignal(float)
     heartbeat = QtCore.pyqtSignal(str)        # Heartbeat to confirm device is connected
 
     def __init__(self, comm_port='COM4', baud_rate=4800):
@@ -30,10 +31,6 @@ class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
 
         # Cancel any threading that may be taking place already
         self.stop_thread = True
-        self.t1 = None    # initialize class variable
-
-        # Declare instance variables
-        self.counts = None
 
         # Try to scan the device, otherwise try to initialize it
         try:
@@ -42,7 +39,7 @@ class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
         except:
             self.serDataq = serial.Serial(comm_port, baud_rate)  # initiate communication with ADC device
             self.serDataq.write(b'S0\r')   # force device to stop scanning if was left scanning
-            self.serDataq.write(b'C1')     # enable only channel 1
+            self.serDataq.write(b'C3')     # enable channels 1 and 3
 
 
     def scan(self):
@@ -50,7 +47,6 @@ class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
         self.stop_thread = False
 
         self.serDataq.write(b'S1')      # start scanning
-        self.statemachine = 0           # initate synched variable
         print('Scan started')
 
 
@@ -64,9 +60,10 @@ class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
     @QtCore.pyqtSlot()
     def run(self):
         ''' Meant to run as a thread for taking voltage and counts from the ADC device'''
+        byte_count = 1       # initialize byte_count variable
+        old_byte = 83        # initialize old_byte variable
         while True:
             try:
-
                 if self.stop_thread:
                     break
 
@@ -74,24 +71,22 @@ class DataQ_DI145(QtCore.QThread):  # added inheritance from QThread for signals
                 self.heartbeat.emit('yesLC')
                 byte = ord(string)
 
-                if self.statemachine==0:
-                    # wait until we see bit 0=0
-                    if (byte & 1)==0:       # unsynched
-                        data=byte>>1        # bitwise shift to remove synch bit
-                        self.statemachine=1 # indicate that we are synched
-                else:
-                    self.statemachine=0     # set the state of the machine to unsynched
-                    if byte & 1:    # if the last bit is 1, this is a continuation or 2nd byte
-                        byte2=(byte&254)<<6     # bitwise compare with 11111110 and shift left for 14-bit value
-                        data=data+byte2         # combine with status bits from previous byte
-                        data=data<<2            # shift left 2 bits for 16-bit value
-                        self.counts=data-32768       # subract 1000 0000 0000 0000 for raw ADC count
-                        # self.voltage = self.C1*self.counts + self.C0    # convert to voltage
+                if byte & 1 == 0:           # this is the first byte
+                    byte_count = 1          # indicate that this is the first byte
 
-                        ## Code based on https://www.youtube.com/watch?v=eYJTcLBQKug
-                        self.change_value.emit(self.counts)
-                        #---------------------------------------------------------------------------------
+                elif byte & 1 == 1:         # this is not the first byte
+                    byte_count += 1         # increment byte count
 
+                    if byte_count == 2 or byte_count == 4:     # second byte completes the channel
+                        # combine 1st and 2nd bytes with shift for syncing
+                        data = (old_byte >> 1) + ((byte & 254) << 6)
+                        data = data << 2    # shift left 2 bits for 16-bit value
+                        data = data - 32768 # subtract 1000 0000 0000 0000 for raw ADC count
+
+                        # emit data depending on which byte we are referring to
+                        self.change_value.emit(data) if byte_count==2 else self.change_value_temp.emit(data)
+
+                old_byte = byte     # track the last byte
 
             except:
                 self.heartbeat.emit('noLC')
