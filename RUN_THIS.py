@@ -193,8 +193,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         print('Recording for {} seconds'.format(self.rec.record_length))
 
     def createLists(self):
-        self.DDitems = ['Dew Point','Mass Mixing Ratio','Relative Humidity','Water Vapor Concentration',\
-          'Gamma','Air Density','Counts','Voltage']
+        self.DDitems = ['Dew Point °F','Dew Point °C','Mass Mixing Ratio','Relative Humidity','Water Vapor Concentration',\
+          'Gamma','Air Density','Vapor Pressure','Counts','Voltage']
         self.boxes = [self.HumGenDDbox1, self.HumGenDDbox2, self.HumGenDDbox3]
 
         self.units = [self.HumGenUnits1, self.HumGenUnits2, self.HumGenUnits3]
@@ -353,9 +353,9 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
     def defaultDD(self):
         ''' Set default selections for dropdown menus '''
-        self.HumGenDDbox1.setCurrentIndex(1)  # box1 = MMR
-        self.HumGenDDbox2.setCurrentIndex(0)  # box2 = dew point
-        self.HumGenDDbox3.setCurrentIndex(2)  # box3 = relative humidity
+        self.HumGenDDbox1.setCurrentIndex(0)  # box1 = dew point
+        self.HumGenDDbox2.setCurrentIndex(2)  # box2 = mmr
+        self.HumGenDDbox3.setCurrentIndex(3)  # box3 = relative humidity
 
         # Update the units for each label
         for box, unit, units in zip(self.boxes, self.units, self.unitss):
@@ -513,8 +513,10 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
     def updateUnits(self, text, unit):
         unit.setFont(QtGui.QFont('Arial', 20))
-        if text == 'Dew Point':
+        if text == 'Dew Point °F':
             unit.setText('°F')
+        if text == 'Dew Point °C':
+            unit.setText('°C')
         elif text == 'Mass Mixing Ratio':
             unit.setText('kgH2O/kgAir')
         elif text == 'Relative Humidity':
@@ -529,6 +531,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             unit.setText('')
         elif text == 'Air Density':
             unit.setText('lbm/ft\N{SUPERSCRIPT THREE}')
+        elif text == 'Vapor Pressure':
+            unit.setText('psi')
 
     def updateLCD(self, counts):
         # Calculate various atmospheric conditions
@@ -543,27 +547,30 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         ppmv = spectra_equiv.mole_ratio(mmr)
         gam = spectra_equiv.gamma(self.temperature, self.pressure, mmr)
         rho = spectra_equiv.density(self.temperature, self.pressure, mmr)
+        pv = spectra_equiv.vapor_pressure(mmr, self.pressure)
 
         # Loop to determine what values to put in dataset
-        rec_values = self.rec_data(TddegF,mmr,rh,counts,voltage,ppmv,gam,rho)
+        rec_values = self.rec_data(TddegF,TddegC,mmr,rh,counts,voltage,ppmv,gam,rho,pv)
 
         # Push data to recording
         self.rec.captureDataLC(rec_values)
         self.recordControls()    # change recording light
 
         # Combine the calculated values for live updates
-        values = [TddegF, mmr, rh, counts, voltage, ppmv, gam, rho]
+        values = [TddegF, TddegC, mmr, rh, counts, voltage, ppmv, gam, rho, pv]
 
         # Set each LCD to the respective value based on combobox selection
         self.box_loop(self.LCDs, values)
 
-    def rec_data(self,TddegF,mmr,rh,counts,voltage,ppmv,gam,rho):
+    def rec_data(self,TddegF,TddegC,mmr,rh,counts,voltage,ppmv,gam,rho,pv):
         # Loop to determine what values to put in dataset
         rec_values = []
         rec_opts = self.rec_defaults + self.rec_options  # Add temp and press as defaults
         for text in rec_opts:
-            if text == 'Dew Point':
+            if text == 'Dew Point °F':
                 rec_values.append(TddegF)
+            elif text == 'Dew Point °C':
+                rec_values.append(TddegC)
             elif text == 'Mass Mixing Ratio':
                 rec_values.append(mmr)
             elif text == 'Relative Humidity':
@@ -578,6 +585,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 rec_values.append(gam)
             elif text == 'Density':
                 rec_values.append(rho)
+            elif text == 'Vapor Pressure':
+                rec_values.append(pv)
             elif text == 'Temperature':
                 rec_values.append(self.temperature)
             elif text == 'Pressure':
@@ -594,19 +603,21 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         ppmv = vals[0]
         mmr = spectra_equiv.humidity_ratio2(ppmv)
         TddegF = spectra_equiv.dew_point(mmr, self.pressure)
+        TddegC = (TddegF - 32) / 1.8
         rh = spectra_equiv.relative_humidity1(self.temperature, mmr, self.pressure)*100
         gam = spectra_equiv.gamma(self.temperature, self.pressure, mmr)
         rho = spectra_equiv.density(self.temperature, self.pressure, mmr)
+        pv = spectra_equiv.vapor_pressure(mmr, self.pressure)
 
         # Loop to determine what values to put in dataset
-        rec_values = self.rec_data(TddegF,mmr,rh,counts,voltage,ppmv,gam,rho)
+        rec_values = self.rec_data(TddegF,TddegC,mmr,rh,counts,voltage,ppmv,gam,rho,pv)
 
         # Push data to recording
         self.rec.captureDataSS(rec_values)
         self.recordControls()    # change recording light
 
         # Combine the calculated values
-        values = [TddegF, mmr, rh, counts, voltage, ppmv, gam, rho]
+        values = [TddegF, TddegC, mmr, rh, counts, voltage, ppmv, gam, rho, pv]
 
         # Set each LCD to the respective value based on combobox selection
         self.box_loop(self.LCDss, values)
@@ -614,22 +625,26 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def box_loop(self, LCDS, values):
         for lcd, box in zip(LCDS, self.boxes):
             box_val = str(box.currentText())
-            if box_val == 'Dew Point':
+            if box_val == 'Dew Point °F':
                 lcd.display('{:.2f}'.format(round(values[0], 2)))
+            elif box_val == 'Dew Point °C':
+                lcd.display('{:.2f}'.format(round(values[1], 2)))
             elif box_val == 'Mass Mixing Ratio':  # Mass mixing ratio
-                lcd.display('{:.5f}'.format(round(values[1], 5)))
+                lcd.display('{:.5f}'.format(round(values[2], 5)))
             elif box_val == 'Relative Humidity':  # Relative humidity
-                lcd.display('{:.2f}'.format(round(values[2], 2)))
+                lcd.display('{:.2f}'.format(round(values[3], 2)))
             elif box_val == 'Counts':  # Counts
-                lcd.display('{0:d}'.format(int(values[3])))
+                lcd.display('{0:d}'.format(int(values[4])))
             elif box_val == 'Voltage':  # Voltage
-                lcd.display('{:.3f}'.format(round(values[4], 3)))
+                lcd.display('{:.3f}'.format(round(values[5], 3)))
             elif box_val == 'Water Vapor Concentration':
-                lcd.display('{:.1f}'.format(round(values[5], 1)))
+                lcd.display('{:.1f}'.format(round(values[6], 1)))
             elif box_val == 'Gamma':
-                lcd.display('{:.3f}'.format(round(values[6], 3)))
+                lcd.display('{:.3f}'.format(round(values[7], 3)))
             elif box_val == 'Air Density':
-                lcd.display('{:.4f}'.format(round(values[7], 4)))
+                lcd.display('{:.4f}'.format(round(values[8], 4)))
+            elif box_val == 'Vapor Pressure':
+                lcd.display('{:.3f}'.format(round(values[9], 3)))
 
     def editRadioButtons(self):
         for Rbutton in self.all_Rbuttons:
