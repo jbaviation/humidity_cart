@@ -40,7 +40,6 @@ class Recording:
         if '.csv' in self.filename:
             self.filename = self.filename[0:self.filename.find('.csv')]
 
-
         # Combine all necessary elements of filename into full_filename
         self.full_filename = os.path.join(self.fileLoc,self.filename+'.csv')
 

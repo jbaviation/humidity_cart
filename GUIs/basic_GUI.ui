@@ -1238,7 +1238,7 @@
     </widget>
     <widget class="QLineEdit" name="recLengthEdit">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="geometry">
       <rect>
@@ -1251,7 +1251,7 @@
     </widget>
     <widget class="QLineEdit" name="recLocEdit">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="geometry">
       <rect>
@@ -1290,7 +1290,7 @@
     </widget>
     <widget class="QLineEdit" name="rdgNumEdit">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="geometry">
       <rect>

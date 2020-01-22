@@ -138,6 +138,11 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.statusLED.setPixmap(self.offLED)
         self.statusLED.setScaledContents(True)
 
+        # Set recording lineEdits to read only
+        self.recLocEdit.setReadOnly(True)
+        self.recLengthEdit.setReadOnly(True)
+        self.rdgNumEdit.setReadOnly(True)
+
         # Tell if port configuration is setup correctly
         self.active = False
 
@@ -193,6 +198,9 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.rec.time_start = time.time()   # Track start time with button push
         self.rec.time_end = self.rec.time_start + self.rec.record_length
         print('Recording for {} seconds'.format(self.rec.record_length))
+
+        self.rdgNumEdit.setText(str(self.rec.rdg))  # Update the reading number in the GUI
+
 
     def createLists(self):
         self.DDitems = ['Dew Point degF','Dew Point degC','Mass Mixing Ratio','Relative Humidity','Water Vapor Concentration',\
@@ -253,6 +261,11 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             self.rec.filename = fname; self.rec.fileLoc = outLoc
             self.rec.getFullFile()
             self.rec.check_for_latest_reading()
+
+            # Set line edit values
+            self.recLengthEdit.setText(str(self.rec.record_length))
+            self.recLocEdit.setText(str(self.rec.full_filename))
+            self.rdgNumEdit.setText(str(self.rec.rdg-1))
 
             print('File to be saved as: {}'.format(self.rec.full_filename))
 
