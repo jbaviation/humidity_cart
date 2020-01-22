@@ -28,11 +28,9 @@ class Recording:
 
         self.time_start = time.time()       # initialize time start
         self.time_end = self.time_start+self.record_length
-        self.time_last_increment = time.time()  # initialize time of last incr
         self.avg_on = True                  # turn on averaging
         self.rdg = init_reading_number      # initialized reading number
-        self.incr = False                   # initialize incrementer
-        self._check_for_latest_reading()     # pull in reading from existing file (if exists)
+        self.check_for_latest_reading()     # pull in reading from existing file (if exists)
 
         self.iheaders = ['Reading','DateTime']  # start with initial headers
         self.headers = []
@@ -46,12 +44,11 @@ class Recording:
         # Combine all necessary elements of filename into full_filename
         self.full_filename = os.path.join(self.fileLoc,self.filename+'.csv')
 
-    def _check_for_latest_reading(self):
+    def check_for_latest_reading(self):
         if os.path.isfile(self.full_filename):
             rdg_from_file = int(pd.read_csv(self.full_filename, usecols=['Reading']).max())
             self.rdg = rdg_from_file+1
         else:
-            print('Not Found {}'.format(self.full_filename))
             self.rdg = 1
 
     def captureDataSS(self, values):
@@ -91,10 +88,6 @@ class Recording:
                     print('WVSS Recording Captured')
                     print('WVSS Data Length = {} rows in {} seconds'.format(len(self.dataSS), time.time()-self.time_start))
 
-                    # Get ready for next recording
-                    self.incr = True  # increment reading number
-                    self.time_last_increment = time.time()
-
                 except:  # file is open cannot write so throw an error
                     msg = common_def.error_msg()
                     msg.setText('DATA NOT WRITTEN TO FILE:\n\n{} is open; '.format(self.filename_ext) + \
@@ -102,17 +95,6 @@ class Recording:
                     msg.exec_()
 
             self.continuationSS = False  # turn off continuation
-
-        # Check if we should increment reading number
-        self.checkIncrement()
-
-
-    def checkIncrement(self):
-        time_since_last_increment = time.time() - self.time_last_increment
-        if self.incr and time_since_last_increment > 4:
-            self.rdg += 1   # increment reading number
-            self.incr = False
-
 
     def captureDataLC(self, values):
         '''Captures data for the humidity generator.'''
@@ -151,10 +133,6 @@ class Recording:
                     print('HumGen Recording Captured')
                     print('HumGen Data Length = {} rows in {} seconds'.format(len(self.dataLC), time.time()-self.time_start))
 
-                    # Get ready for next recording
-                    self.incr = True  # increment reading number
-                    self.time_last_increment = time.time()
-
                 except:  # file is open cannot write so throw an error
                     msg = common_def.error_msg()
                     msg.setText('DATA NOT WRITTEN TO FILE:\n\n{} is open; '.format(self.filename_ext) + \
@@ -163,9 +141,6 @@ class Recording:
 
 
             self.continuationLC = False  # turn off continuation
-
-        # Check if we should increment reading number
-        self.checkIncrement()
 
     def interpretOutput(self, data, src):
         '''After reading has been captured, this method evaluates what to do with it.'''

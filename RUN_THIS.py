@@ -188,6 +188,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         '''Setup record button capability'''
         self.statusLED.setPixmap(self.greenLED)
 
+        self.rec.check_for_latest_reading()  # Look for latest reading in the file and increment
         self.rec.recEnabled = True          # Indicate we are in record mode
         self.rec.time_start = time.time()   # Track start time with button push
         self.rec.time_end = self.rec.time_start + self.rec.record_length
@@ -251,7 +252,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             self.rec.record_length = avgLength
             self.rec.filename = fname; self.rec.fileLoc = outLoc
             self.rec.getFullFile()
-            self.rec._check_for_latest_reading()
+            self.rec.check_for_latest_reading()
 
             print('File to be saved as: {}'.format(self.rec.full_filename))
 
