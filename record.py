@@ -50,6 +50,9 @@ class Recording:
         if os.path.isfile(self.full_filename):
             rdg_from_file = int(pd.read_csv(self.full_filename, usecols=['Reading']).max())
             self.rdg = rdg_from_file+1
+        else:
+            print('Not Found {}'.format(self.full_filename))
+            self.rdg = 1
 
     def captureDataSS(self, values):
         '''Captures data for the spectra sensor.'''

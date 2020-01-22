@@ -21,7 +21,7 @@ class RecGUI(QtWidgets.QDialog, rgui.Ui_dialog):
 
         global avgLength, fname, outLoc
 
-        self.selected = [self.dpBox,self.rhBox,self.mmrBox,self.vcBox]
+        self.selected = [self.tempFBox,self.dpFBox,self.rhBox,self.mmrBox,self.vcBox]
         self.set_selected()
         self.set_defaults()
         self.toolButton.clicked.connect(self.toolButtonClicked)
@@ -127,9 +127,9 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
     def setDefaults(self):
         # Default recording parameters
-        self.rec_defaults = ['Temperature', 'Pressure']
-        self.rec_options = ['Dew Point','Relative Humidity','Mass Mixing Ratio','Vapor Concentration',\
-            'Gamma','Density','Voltage','Counts']
+        self.rec_defaults = ['Pressure']
+        self.rec_options = ['Temperature degF','Temperature degC','Dew Point degF','Dew Point degC','Relative Humidity',\
+            'Mass Mixing Ratio','Vapor Concentration','Vapor Pressure','Gamma','Density','Voltage','Counts']
 
         # Initialize instance of Recording class
         self.rec = record.Recording()
@@ -143,11 +143,12 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         # Initialize instance of RecGUI and default checked boxes
         self.rdlg = RecGUI(self)
-        self.checked = [self.rdlg.dpBox,self.rdlg.rhBox,self.rdlg.mmrBox,self.rdlg.vcBox]
-        self.chkboxes = [self.rdlg.dpBox,self.rdlg.rhBox,self.rdlg.mmrBox,self.rdlg.vcBox,\
-            self.rdlg.gamBox,self.rdlg.rhoBox,self.rdlg.voltBox,self.rdlg.cntBox]
-        self.options = ['Dew Point','Relative Humidity','Mass Mixing Ratio','Vapor Concentration',\
-            'Gamma','Density','Voltage','Counts']
+        self.checked = [self.rdlg.tempFBox,self.rdlg.dpFBox,self.rdlg.rhBox,self.rdlg.mmrBox,self.rdlg.vcBox]
+        self.chkboxes = [self.rdlg.tempFBox,self.rdlg.tempCBox,self.rdlg.dpFBox,self.rdlg.dpCBox,self.rdlg.rhBox,\
+            self.rdlg.mmrBox,self.rdlg.vcBox,self.rdlg.vpBox,self.rdlg.gamBox,self.rdlg.rhoBox,self.rdlg.voltBox,\
+            self.rdlg.cntBox]
+        self.options = ['Temperature degF','Temperature degC','Dew Point degF','Dew Point degC','Relative Humidity',\
+            'Mass Mixing Ratio','Vapor Concentration','Vapor Pressure','Gamma','Density','Voltage','Counts']
 
     def setupImages(self):
         # Change directory for image
@@ -193,7 +194,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         print('Recording for {} seconds'.format(self.rec.record_length))
 
     def createLists(self):
-        self.DDitems = ['Dew Point °F','Dew Point °C','Mass Mixing Ratio','Relative Humidity','Water Vapor Concentration',\
+        self.DDitems = ['Dew Point degF','Dew Point degC','Mass Mixing Ratio','Relative Humidity','Water Vapor Concentration',\
           'Gamma','Air Density','Vapor Pressure','Counts','Voltage']
         self.boxes = [self.HumGenDDbox1, self.HumGenDDbox2, self.HumGenDDbox3]
 
@@ -250,6 +251,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             self.rec.record_length = avgLength
             self.rec.filename = fname; self.rec.fileLoc = outLoc
             self.rec.getFullFile()
+            self.rec._check_for_latest_reading()
 
             print('File to be saved as: {}'.format(self.rec.full_filename))
 
@@ -488,7 +490,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             self.TemperatureEdit.setText(str(self.temperature))
 
             msg = common_def.error_msg()
-            msg.setText('{} °F is NOT in the range -200-200 °F'.format(checkT))
+            msg.setText('{} degF is NOT in the range -200-200 degF'.format(checkT))
             msg.exec_()
 
         self.old_pressure = self.pressure
@@ -513,10 +515,10 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
     def updateUnits(self, text, unit):
         unit.setFont(QtGui.QFont('Arial', 20))
-        if text == 'Dew Point °F':
-            unit.setText('°F')
-        if text == 'Dew Point °C':
-            unit.setText('°C')
+        if text == 'Dew Point degF':
+            unit.setText('degF')
+        if text == 'Dew Point degC':
+            unit.setText('degC')
         elif text == 'Mass Mixing Ratio':
             unit.setText('kgH2O/kgAir')
         elif text == 'Relative Humidity':
@@ -567,9 +569,9 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         rec_values = []
         rec_opts = self.rec_defaults + self.rec_options  # Add temp and press as defaults
         for text in rec_opts:
-            if text == 'Dew Point °F':
+            if text == 'Dew Point degF':
                 rec_values.append(TddegF)
-            elif text == 'Dew Point °C':
+            elif text == 'Dew Point degC':
                 rec_values.append(TddegC)
             elif text == 'Mass Mixing Ratio':
                 rec_values.append(mmr)
@@ -587,7 +589,9 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 rec_values.append(rho)
             elif text == 'Vapor Pressure':
                 rec_values.append(pv)
-            elif text == 'Temperature':
+            elif text == 'Temperature degF':
+                rec_values.append(self.temperature)
+            elif text == 'Temperature degC':
                 rec_values.append(self.temperature)
             elif text == 'Pressure':
                 rec_values.append(self.pressure)
@@ -625,9 +629,9 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def box_loop(self, LCDS, values):
         for lcd, box in zip(LCDS, self.boxes):
             box_val = str(box.currentText())
-            if box_val == 'Dew Point °F':
+            if box_val == 'Dew Point degF':
                 lcd.display('{:.2f}'.format(round(values[0], 2)))
-            elif box_val == 'Dew Point °C':
+            elif box_val == 'Dew Point degC':
                 lcd.display('{:.2f}'.format(round(values[1], 2)))
             elif box_val == 'Mass Mixing Ratio':  # Mass mixing ratio
                 lcd.display('{:.5f}'.format(round(values[2], 5)))
@@ -702,7 +706,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 self.rdlg.outLocEdit.setText(csvals[4])
 
                 # Apply checkboxes
-                self.chkbox(csvals[5:])
+                self.chkboxes(csvals[5:])
 
                 f.close()
 

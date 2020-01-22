@@ -47,110 +47,6 @@
     <string>Select Output Variables</string>
    </property>
   </widget>
-  <widget class="QCheckBox" name="dpBox">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>50</y>
-     <width>131</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Dew Point</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="mmrBox">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>90</y>
-     <width>131</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Mass Mixing Ratio</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="rhBox">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>70</y>
-     <width>131</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Relative Humidity</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="vcBox">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>110</y>
-     <width>131</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Vapor Concentration</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="gamBox">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>50</y>
-     <width>131</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Gamma</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="rhoBox">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>70</y>
-     <width>131</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Density</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="voltBox">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>90</y>
-     <width>131</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Voltage</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="cntBox">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>110</y>
-     <width>131</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Counts</string>
-   </property>
-  </widget>
   <widget class="QLabel" name="outVarsLabel_2">
    <property name="geometry">
     <rect>
@@ -276,6 +172,102 @@
    <property name="text">
     <string>...</string>
    </property>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>50</y>
+     <width>381</width>
+     <height>88</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QCheckBox" name="tempFBox">
+      <property name="text">
+       <string>Temperature °F</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QCheckBox" name="rhBox">
+      <property name="text">
+       <string>Relative Humidity</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2">
+     <widget class="QCheckBox" name="gamBox">
+      <property name="text">
+       <string>Gamma</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QCheckBox" name="dpFBox">
+      <property name="text">
+       <string>Dew Point °F</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QCheckBox" name="mmrBox">
+      <property name="text">
+       <string>Mass Mixing Ratio</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QCheckBox" name="rhoBox">
+      <property name="text">
+       <string>Density</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QCheckBox" name="tempCBox">
+      <property name="text">
+       <string>Temperature °C</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QCheckBox" name="vcBox">
+      <property name="text">
+       <string>Vapor Concentration</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QCheckBox" name="voltBox">
+      <property name="text">
+       <string>Voltage</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QCheckBox" name="dpCBox">
+      <property name="text">
+       <string>Dew Point °C</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QCheckBox" name="vpBox">
+      <property name="text">
+       <string>Vapor Pressure</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="2">
+     <widget class="QCheckBox" name="cntBox">
+      <property name="text">
+       <string>Counts</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>
