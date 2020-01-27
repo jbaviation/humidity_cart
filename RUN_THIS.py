@@ -50,6 +50,94 @@ class RecGUI(QtWidgets.QDialog, rgui.Ui_dialog):
 
 #----------------------------------------------------------------------------------
 
+## For the set conditions GUI
+# The following allows you to access the auto-generated gui from pyuic5
+from GUIs import setConditions_GUI as scgui
+class SetCondGUI(QtWidgets.QDialog, scgui.Ui_Dialog):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setupUi(self)
+
+        self.addDDOptions()  # Add all defaults and options to the dropdown boxes
+
+        self.setPressChkBox.stateChanged.connect(self.pressToggled)  # set pressure changes state
+        self.setTempChkBox.stateChanged.connect(self.tempToggled) # set temperature changes state
+
+
+    def setOutputValuePress(self, text):
+        # Convert to PSI
+        self.setPressVal = float(self.pressLineEdit.text())
+        if text == 'Pa':
+            self.setPressVal = self.setPressVal * 1.450377e-4
+        elif text == 'kPa':
+            self.setPressVal = self.setPressVal * 0.1450377
+        elif text == 'mb':
+            self.setPressVal = self.setPressVal * 0.01450377
+        elif text == 'inHg':
+            self.setPressVal = self.setPressVal * 0.491154
+
+
+    def setOutputValueTemp(self, text):
+        # Convert to degrees Fahrenheit
+        self.setTempVal = float(self.tempLineEdit.text())
+        if text == 'degC':
+            self.setTempVal = self.setTempVal*1.8 + 32
+        elif text == 'degR':
+            self.setTempVal = self.setTempVal + 459.67
+        elif text == 'K':
+            self.setTempVal = (self.setTempVal-273.15)*1.8 + 32
+
+    def addDDOptions(self):
+        ''' Add all defaults and options to all dropdown boxes'''
+        # Set default values
+        self.pressure = 14.696
+        self.temperature = 70.0
+
+        # Dropdown box options
+        self.pressOptions = ['psi', 'Pa', 'kPa', 'mb', 'inHg']
+        self.tempOptions = ['degF', 'degC', 'degR', 'K']
+
+        # Add options to dropdown boxes
+        self.pressUnitDD.addItems(self.pressOptions)
+        self.tempUnitDD.addItems(self.tempOptions)
+
+        # Set default values and dropdown selections
+        self.pressLineEdit.setText(str(self.pressure))
+        self.tempLineEdit.setText(str(self.temperature))
+        self.pressUnitDD.setCurrentIndex(0)
+        self.tempUnitDD.setCurrentIndex(0)
+
+    def pressToggled(self, state):
+        ''' Determine what happens when set pressure is checked '''
+        if state > 0:   # check box is selected
+            self.pressLineEdit.setEnabled(True)
+            self.pressUnitDD.setEnabled(True)
+
+            value = 14.696   # FIND A WAY TO READ THIS FROM A tmp FILE
+            self.pressLineEdit.setText(str(value))
+            self.pressUnitDD.setCurrentIndex(0)
+        else:  # check box is not selected
+            self.pressLineEdit.setEnabled(False)
+            self.pressLineEdit.setText('')
+            self.pressUnitDD.setEnabled(False)
+            self.pressUnitDD.setCurrentText('')
+
+    def tempToggled(self, state):
+        ''' Determine what happens when set temperature is checked '''
+        if state > 0:   # check box is selected
+            self.tempLineEdit.setEnabled(True)
+            self.tempUnitDD.setEnabled(True)
+
+            value = 70.0    # FIND A WAY TO READ THIS FROM A tmp FILE
+            self.tempLineEdit.setText(str(value))
+            self.tempUnitDD.setCurrentIndex(0)
+        else:  # check box is not selected
+            self.tempLineEdit.setEnabled(False)
+            self.tempLineEdit.setText('')
+            self.tempUnitDD.setEnabled(False)
+            self.tempUnitDD.setCurrentText('')
+
+#----------------------------------------------------------------------------------
 
 ## For the hardware setup GUI
 # The following allows you to access the auto-generated gui from pyuic5
@@ -64,6 +152,9 @@ class HardwareGUI(QtWidgets.QDialog, sgui.Ui_dialog):
         self.lineLC.setText(comLC)
         self.lineWVSS.setText(comSS)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setText('Apply')  # Change text from Ok to Apply
+
+        # Call
+
 
 #----------------------------------------------------------------------------------
 
@@ -97,8 +188,6 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.thread = None   # Humidity generator thread
         self.threadSS = None # WVSS thread
 
-        # self.tmpOpen()      # Open temp file to check for last file that was saved
-
         # Put similar widgets in lists
         self.createLists()
 
@@ -107,7 +196,6 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.setDefaults()      # generate defaults for certain items
         self.menuActions()    # generate activity from menubar
         self.addDDOptions()   # add options to dropdown boxes
-        self.updateBackgroundConditions()   # set temperature and pressure based on input
         self.defaultDD()   # set default dropdowns
         self.editRadioButtons()   # grey out radio buttons before initializing
 
@@ -121,11 +209,16 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.ss = None
 
         # Connect update activity
+        self.updateBackgroundConditions()    # set temperature and pressure based on input
         self.updateDDBoxes()
         self.updateStartStopButtons()
         self.closeProgram()
 
     def setDefaults(self):
+        # Set whether pressure and temperature is measured or fixed
+        self.measuredPress = False
+        self.measuredTemp = False
+
         # Default recording parameters
         self.rec_defaults = ['Pressure']
         self.rec_options = ['Temperature degF','Temperature degC','Dew Point degF','Dew Point degC','Relative Humidity',\
@@ -213,14 +306,17 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.unitss = [self.WVSSUnits1, self.WVSSUnits2, self.WVSSUnits3]
         self.LCDss = [self.WVSSLCD1, self.WVSSLCD2, self.WVSSLCD3]
 
+        self.unitsair = [self.PressureUnitLabel, self.TemperatureUnitLabel]
+        self.LCDair = [self.PressLCD, self.TempLCD]
+
         self.lcLabels = [self.lcLabel1, self.lcLabel2, self.lcLabel3]
         self.ssLabels = [self.ssLabel1, self.ssLabel2, self.ssLabel3]
 
         self.lcRbuttons = [self.StartButton, self.StopButton]
         self.ssRbuttons = [self.WVSSstartButton, self.WVSSstopButton]
 
-        self.all_labels = self.lcLabels + self.ssLabels
-        self.all_LCDs = self.LCDs + self.LCDss
+        self.all_labels = self.lcLabels + self.ssLabels +self.unitsair
+        self.all_LCDs = self.LCDs + self.LCDss + self.LCDair
         self.all_Rbuttons = self.lcRbuttons + self.ssRbuttons
 
     def menuActions(self):
@@ -510,8 +606,19 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.old_pressure = self.pressure
         self.old_temperature = self.temperature
 
+    def pushButtonClicked(self):
+        dlg = SetCondGUI(self)
+        dlg.buttonBox.accepted.connect(dlg.accept)
+        dlg.buttonBox.rejected.connect(dlg.reject)
+
+        # The following executes the dialog box and returns whether it was
+        # accepted or rejected
+        result = dlg.exec_()
+        # if result == QtWidgets.QDialog.Accepted:
+
     def updateBackgroundConditions(self):
         self.SetConditionsButton.clicked.connect(self.setTP)
+        self.pushButton.clicked.connect(self.pushButtonClicked)
 
     def updateStartStopButtons(self):
         self.StartButton.clicked.connect(self.scanClicked)
@@ -526,6 +633,10 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                lambda text, unit=unit: self.updateUnits(text, unit))
             box.activated[str].connect(
                lambda text, units=units: self.updateUnits(text, units))
+
+    def updateUnitsAir(self, text, unit):
+        unit.setFont(QtGui.QFont('Arial', 20))
+        pass
 
     def updateUnits(self, text, unit):
         unit.setFont(QtGui.QFont('Arial', 20))
