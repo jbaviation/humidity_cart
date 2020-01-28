@@ -64,7 +64,10 @@ class SetCondGUI(QtWidgets.QDialog, scgui.Ui_Dialog):
         self.setTempChkBox.stateChanged.connect(self.tempToggled) # set temperature changes state
 
 
-    def setOutputValuePress(self, text):
+    def getPress(self):
+        text = str(self.pressUnitDD.currentText())
+        print('text = '.format(text))
+
         # Convert to PSI
         self.setPressVal = float(self.pressLineEdit.text())
         if text == 'Pa':
@@ -77,7 +80,9 @@ class SetCondGUI(QtWidgets.QDialog, scgui.Ui_Dialog):
             self.setPressVal = self.setPressVal * 0.491154
 
 
-    def setOutputValueTemp(self, text):
+    def getTemp(self):
+        text = str(self.tempUnitDD.currentText())
+
         # Convert to degrees Fahrenheit
         self.setTempVal = float(self.tempLineEdit.text())
         if text == 'degC':
@@ -153,7 +158,7 @@ class HardwareGUI(QtWidgets.QDialog, sgui.Ui_dialog):
         self.lineWVSS.setText(comSS)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setText('Apply')  # Change text from Ok to Apply
 
-        # Call
+        self.dpGenChkBox.setChecked(True)   # default selection is for the dew point generator only
 
 
 #----------------------------------------------------------------------------------
@@ -614,7 +619,13 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         # The following executes the dialog box and returns whether it was
         # accepted or rejected
         result = dlg.exec_()
-        # if result == QtWidgets.QDialog.Accepted:
+        if result == QtWidgets.QDialog.Accepted:
+            # Check for set pressure to be checked
+            if dlg.setPressChkBox.isChecked():
+                dlg.getPress()
+                self.pressure = dlg.setPressVal
+                print('Pressure = '.format(self.pressure))
+            pass
 
     def updateBackgroundConditions(self):
         self.SetConditionsButton.clicked.connect(self.setTP)

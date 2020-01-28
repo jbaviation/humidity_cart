@@ -2,12 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="89220a0d-e911-44b5-a94a-82a11ff3a45b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/GUIs/basic_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/GUIs/basic_GUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUIs/basic_GUI.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUIs/basic_GUI.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUIs/setup_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/GUIs/setup_GUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUIs/setup_GUI.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUIs/setup_GUI.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/RUN_THIS.py" beforeDir="false" afterPath="$PROJECT_DIR$/RUN_THIS.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp.txt" beforeDir="false" afterPath="$PROJECT_DIR$/tmp.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -58,8 +53,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/RUN_THIS.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="235">
-                  <caret line="75" column="28" lean-forward="true" selection-start-line="75" selection-start-column="28" selection-end-line="75" selection-end-column="28" />
+                <state relative-caret-position="363">
+                  <caret line="624" column="30" lean-forward="true" selection-start-line="624" selection-start-column="30" selection-end-line="624" selection-end-column="30" />
                   <folding>
                     <element signature="e#95#127#0" expanded="true" />
                   </folding>
@@ -73,7 +68,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>full_filename</find>
       <find>counts</find>
       <find>t1</find>
       <find>units</find>
@@ -103,6 +97,7 @@
       <find>self.units</find>
       <find>updateUnits</find>
       <find>text</find>
+      <find>setup_GUI</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -130,10 +125,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="847" />
-    <option name="y" value="190" />
-    <option name="width" value="1297" />
-    <option name="height" value="977" />
+    <option name="x" value="1058" />
+    <option name="y" value="237" />
+    <option name="width" value="1622" />
+    <option name="height" value="1222" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -196,10 +191,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="2576" height="1056" extended-state="6" />
+    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.088652484" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.14861295" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -258,8 +253,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/RUN_THIS.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="235">
-          <caret line="75" column="28" lean-forward="true" selection-start-line="75" selection-start-column="28" selection-end-line="75" selection-end-column="28" />
+        <state relative-caret-position="363">
+          <caret line="624" column="30" lean-forward="true" selection-start-line="624" selection-start-column="30" selection-end-line="624" selection-end-column="30" />
           <folding>
             <element signature="e#95#127#0" expanded="true" />
           </folding>
