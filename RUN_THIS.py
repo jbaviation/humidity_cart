@@ -185,7 +185,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         # Initialize variables
         self.pressure = 14.696  # psi, reference static pressure (set to SL press for now)
-        self.temperature = 59   # degF, reference static temperature
+        self.temperature = 70   # degF, reference static temperature
         self.setTP()   # set initial values
         self.old_pressure = self.pressure   # in case of needing to revert
         self.old_temperature = self.temperature  # in case of needing to revert
@@ -298,7 +298,6 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         print('Recording for {} seconds'.format(self.rec.record_length))
 
         self.rdgNumEdit.setText(str(self.rec.rdg))  # Update the reading number in the GUI
-
 
     def createLists(self):
         self.DDitems = ['Dew Point degF','Dew Point degC','Mass Mixing Ratio','Relative Humidity','Water Vapor Concentration',\
@@ -653,6 +652,31 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.old_temperature = self.temperature
 
     def pushButtonClicked(self):
+
+        def getPress(press, units):
+            # Convert to PSI
+            setPressVal = press
+            if units == 'Pa':
+                setPressVal = setPressVal * 1.450377e-4
+            elif units == 'kPa':
+                setPressVal = setPressVal * 0.1450377
+            elif units == 'mb':
+                setPressVal = setPressVal * 0.01450377
+            elif units == 'inHg':
+                setPressVal = setPressVal * 0.491154
+            return setPressVal
+
+        def getTemp(temp, units):
+            # Convert to degrees Fahrenheit
+            setTempVal = temp
+            if units == 'degC':
+                setTempVal = setTempVal * 1.8 + 32
+            elif units == 'degR':
+                setTempVal = setTempVal + 459.67
+            elif units == 'K':
+                setTempVal = (setTempVal - 273.15) * 1.8 + 32
+            return setTempVal
+
         dlg = SetCondGUI(self)
         dlg.buttonBox.accepted.connect(dlg.accept)
         dlg.buttonBox.rejected.connect(dlg.reject)
@@ -661,12 +685,18 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         # accepted or rejected
         result = dlg.exec_()
         if result == QtWidgets.QDialog.Accepted:
+
             # Check for set pressure to be checked
             if dlg.setPressChkBox.isChecked():
-                dlg.getPress()
-                self.pressure = dlg.setPressVal
-                print('Pressure = '.format(self.pressure))
-            pass
+                pressVal = float(dlg.pressLineEdit.text())
+                units = str(dlg.pressUnitDD.currentText())
+                self.pressure = getPress(pressVal, units)
+                print('Pressure = {}'.format(self.pressure))
+            if dlg.setTempChkBox.isChecked():
+                tempVal = float(dlg.tempLineEdit.text())
+                units = str(dlg.tempUnitDD.currentText())
+                self.temperature = getTemp(tempVal, units)
+                print('Temperature = {}'.format(self.temperature))
 
     def updateBackgroundConditions(self):
         self.SetConditionsButton.clicked.connect(self.setTP)

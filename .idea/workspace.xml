@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="89220a0d-e911-44b5-a94a-82a11ff3a45b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUIs/basic_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/GUIs/basic_GUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUIs/basic_GUI.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUIs/basic_GUI.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUIs/setup_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/GUIs/setup_GUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUIs/setup_GUI.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUIs/setup_GUI.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/RUN_THIS.py" beforeDir="false" afterPath="$PROJECT_DIR$/RUN_THIS.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/humref/spectra_equiv.py" beforeDir="false" afterPath="$PROJECT_DIR$/humref/spectra_equiv.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -32,8 +26,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/ADC.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="170">
-                  <caret line="14" column="37" selection-start-line="14" selection-start-column="37" selection-end-line="14" selection-end-column="37" />
+                <state relative-caret-position="187">
+                  <caret line="15" column="24" lean-forward="true" selection-start-line="15" selection-start-column="24" selection-end-line="15" selection-end-column="24" />
                 </state>
               </provider>
             </entry>
@@ -63,11 +57,31 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/RUN_THIS.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="243">
-                  <caret line="720" column="31" lean-forward="true" selection-start-line="720" selection-start-column="31" selection-end-line="720" selection-end-column="31" />
+                <state relative-caret-position="217">
+                  <caret line="677" column="29" selection-start-line="677" selection-start-column="29" selection-end-line="677" selection-end-column="29" />
                   <folding>
                     <element signature="e#95#127#0" expanded="true" />
+                    <element signature="e#531#1563#0" />
+                    <element signature="e#8343#9962#0" />
+                    <element signature="e#9999#10531#0" />
+                    <element signature="e#10572#10779#0" />
+                    <element signature="e#10819#11137#0" />
+                    <element signature="e#11184#11352#0" />
+                    <element signature="e#11395#11972#0" />
+                    <element signature="e#12010#13169#0" />
+                    <element signature="e#13206#13620#0" />
+                    <element signature="e#13662#16518#0" />
+                    <element signature="e#16559#18170#0" />
+                    <element signature="e#18210#19328#0" />
+                    <element signature="e#19366#19480#0" />
+                    <element signature="e#19515#19987#0" />
+                    <element signature="e#20045#20349#0" />
+                    <element signature="e#20406#20599#0" />
+                    <element signature="e#21621#22154#0" />
                     <element signature="e#22200#24043#0" />
+                    <element signature="e#25813#26049#0" />
+                    <element signature="e#26088#26374#0" />
+                    <element signature="e#26526#27288#0" />
                   </folding>
                 </state>
               </provider>
@@ -79,8 +93,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>self.rec_options</find>
-      <find>self.rec_defaults</find>
       <find>selected</find>
       <find>deg</find>
       <find>°</find>
@@ -109,6 +121,8 @@
       <find>updatetem</find>
       <find>updatetemp</find>
       <find>templc</find>
+      <find>59.</find>
+      <find>59</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -255,18 +269,38 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ADC.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="14" column="37" selection-start-line="14" selection-start-column="37" selection-end-line="14" selection-end-column="37" />
+        <state relative-caret-position="187">
+          <caret line="15" column="24" lean-forward="true" selection-start-line="15" selection-start-column="24" selection-end-line="15" selection-end-column="24" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/RUN_THIS.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="243">
-          <caret line="720" column="31" lean-forward="true" selection-start-line="720" selection-start-column="31" selection-end-line="720" selection-end-column="31" />
+        <state relative-caret-position="217">
+          <caret line="677" column="29" selection-start-line="677" selection-start-column="29" selection-end-line="677" selection-end-column="29" />
           <folding>
             <element signature="e#95#127#0" expanded="true" />
+            <element signature="e#531#1563#0" />
+            <element signature="e#8343#9962#0" />
+            <element signature="e#9999#10531#0" />
+            <element signature="e#10572#10779#0" />
+            <element signature="e#10819#11137#0" />
+            <element signature="e#11184#11352#0" />
+            <element signature="e#11395#11972#0" />
+            <element signature="e#12010#13169#0" />
+            <element signature="e#13206#13620#0" />
+            <element signature="e#13662#16518#0" />
+            <element signature="e#16559#18170#0" />
+            <element signature="e#18210#19328#0" />
+            <element signature="e#19366#19480#0" />
+            <element signature="e#19515#19987#0" />
+            <element signature="e#20045#20349#0" />
+            <element signature="e#20406#20599#0" />
+            <element signature="e#21621#22154#0" />
             <element signature="e#22200#24043#0" />
+            <element signature="e#25813#26049#0" />
+            <element signature="e#26088#26374#0" />
+            <element signature="e#26526#27288#0" />
           </folding>
         </state>
       </provider>
