@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>446</width>
-    <height>407</height>
+    <width>545</width>
+    <height>442</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>350</y>
+     <x>170</x>
+     <y>370</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -39,8 +39,8 @@
     <rect>
      <x>20</x>
      <y>20</y>
-     <width>401</width>
-     <height>171</height>
+     <width>491</width>
+     <height>161</height>
     </rect>
    </property>
    <property name="font">
@@ -57,9 +57,9 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>80</y>
-      <width>381</width>
-      <height>16</height>
+      <y>75</y>
+      <width>471</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="font">
@@ -78,7 +78,7 @@
      <rect>
       <x>50</x>
       <y>120</y>
-      <width>141</width>
+      <width>441</width>
       <height>20</height>
      </rect>
     </property>
@@ -98,7 +98,7 @@
      <rect>
       <x>50</x>
       <y>100</y>
-      <width>211</width>
+      <width>441</width>
       <height>20</height>
      </rect>
     </property>
@@ -117,9 +117,9 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>40</y>
-      <width>121</width>
-      <height>21</height>
+      <y>38</y>
+      <width>171</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="font">
@@ -136,7 +136,7 @@
    <widget class="QLineEdit" name="lineLC">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>190</x>
       <y>37</y>
       <width>141</width>
       <height>31</height>
@@ -162,7 +162,7 @@
     <rect>
      <x>20</x>
      <y>210</y>
-     <width>401</width>
+     <width>491</width>
      <height>121</height>
     </rect>
    </property>
@@ -176,12 +176,12 @@
    <property name="title">
     <string>Water Vapor Monitor System</string>
    </property>
-   <widget class="QCheckBox" name="tempChkBox_2">
+   <widget class="QCheckBox" name="pressChkBox">
     <property name="geometry">
      <rect>
       <x>50</x>
       <y>80</y>
-      <width>111</width>
+      <width>181</width>
       <height>17</height>
      </rect>
     </property>
@@ -200,9 +200,9 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>40</y>
-      <width>141</width>
-      <height>31</height>
+      <y>37</y>
+      <width>171</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="font">
@@ -219,7 +219,7 @@
    <widget class="QLineEdit" name="lineWVSS">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>190</x>
       <y>40</y>
       <width>141</width>
       <height>31</height>

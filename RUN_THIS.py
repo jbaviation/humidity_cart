@@ -159,7 +159,7 @@ class HardwareGUI(QtWidgets.QDialog, sgui.Ui_dialog):
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setText('Apply')  # Change text from Ok to Apply
 
         self.dpGenChkBox.setChecked(True)   # default selection is for the dew point generator only
-
+        self.dpGenChkBox.setEnabled(False)  # Don't allow the user to change dp gen box
 
 #----------------------------------------------------------------------------------
 
@@ -184,8 +184,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 #----------------------------------------------------------------------------------
 
         # Initialize variables
-        self.pressure = None  # psi, reference static pressure (set to SL press for now)
-        self.temperature = None   # degF, reference static temperature
+        self.pressure = 14.696  # psi, reference static pressure (set to SL press for now)
+        self.temperature = 59   # degF, reference static temperature
         self.setTP()   # set initial values
         self.old_pressure = self.pressure   # in case of needing to revert
         self.old_temperature = self.temperature  # in case of needing to revert
@@ -414,12 +414,31 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                show a message box that request cannot be completed'''
             self.active = False
             try:
+                # Activate DataQ DI145
                 comLC = dlg.lineLC.text()
                 self.s = ADC.DataQ_DI145(comLC)
                 self.active = True    # Triggers to activate record button if one is true
                 for button in self.lcRbuttons:
                     button.setEnabled(True)
+
+                # Look for Checkboxes
+                #  Dew Point Generator
+                if dlg.dpGenChkBox.isChecked():
+                    self.dpGenActive = True # use dew point generator humdity value
+                else:  # warn users if hum generator is not selected
+                    self.dpGenActive = False
+                    msg = common_def.error_msg()
+                    msg.setText('DataQ DI-145 is connected but Dew Point Generator is not selected')
+                    msg.exec_()
+                #  Temperature
+                if dlg.tempChkBox.isChecked():
+                    self.setTempActive = True
+                else:
+                    self.setTempActive = False
+
             except:
+                self.dpGenActive = False
+                self.setTempActive = False
                 msg = common_def.error_msg()
                 msg.setText('Could NOT initialize DataQ DI-145 from port {}'.format(comLC))
                 msg.exec_()
@@ -430,7 +449,15 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 self.active = True    # Triggers to activate record button if one is true
                 for button in self.ssRbuttons:
                     button.setEnabled(True)
+
+                # Look for Pressure Checkbox
+                if dlg.pressChkBox.isChecked():
+                    self.setPressActive = True
+                else:
+                    self.setPressActive = False
+
             except:
+                self.setPressActive = False
                 msg = common_def.error_msg()
                 msg.setText('Could NOT initialize Water Vapor Monitor System from port {}'.format(comSS))
                 msg.exec_()
@@ -499,7 +526,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
     def scanClicked(self):
         txtmsg = "Can't establish a connection with the humidity generator, " + \
-        "you may need to unplug and then replug in the DataQ DI-145 then press 'Ctrl+P' to " + \
+        "you may need to unplug and then replug in the DataQ DI-145 then press 'Ctrl+D' to " + \
         "reconfigure COM port."
 
         try:
@@ -508,8 +535,22 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             # Start thread
             ## Group of Code base on https://www.youtube.com/watch?v=eYJTcLBQKug
             self.thread = self.s
-            self.thread.change_value.connect(self.updateLCD)
+
+            # Check if devices are being read
+            #  Dew Point Generator
+            if self.dpGenActive:
+                self.thread.change_value.connect(self.updateLCD)
+            else:
+                self.updateLCD(0)
+
+            #  Temperature
+            if self.setTempActive:
+                self.thread.change_value_temp.connect(self.updateTemp)
+            else:
+                self.updateTemp(self.temperature)
+
             # [self.thread.change_value.connect(x) for x in [self.updateLCD, self.captureDataLC]]  # Connect to multiple slots
+
             self.thread.heartbeat.connect(self.indicateScan)
             self.thread.start()
             #---------------------------------------------------------------------------------
@@ -671,6 +712,14 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             unit.setText('lbm/ft\N{SUPERSCRIPT THREE}')
         elif text == 'Vapor Pressure':
             unit.setText('psi')
+
+    def updatePress(self, pressure):
+        self.pressure = pressure  # pressure psi
+
+    def updateTemp(self, temp):
+        self.temperature = temp  # temperature degrees F
+        print(self.temperature)
+        self.TempLCD.display('{:.2f}'.format(round(self.temperature, 2)))
 
     def updateLCD(self, counts):
         # Calculate various atmospheric conditions

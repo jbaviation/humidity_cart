@@ -21,8 +21,10 @@ MH2O = cp.PropsSI('M','T',300,'P',10.1,'water')*1e3  # Molar mass of water (g/mo
 #          p_psi   pressure in area of sample (psi)
 #  output: p_w     vapor pressure (psi)
 def vapor_pressure(mmr, p_psi):
-    p_w = p_psi * mmr / (MH2O / MAIR + mmr)
-
+    try:
+        p_w = p_psi * mmr / (MH2O / MAIR + mmr)
+    except:
+        p_w = 0.0
     return p_w
 
 # Humidity ratio (aka mass mixing ratio)
@@ -67,7 +69,10 @@ def dew_point(mmr, p_psi):
     # t_d = 90.12 + 26.412 * np.log(p_w) + 0.8927 * np.log(p_w)**2
 
     # CoolProp method
-    t_d = hap.HAPropsSI('D','W',mmr,'P',p,'T',300)
+    try:
+        t_d = hap.HAPropsSI('D','W',mmr,'P',p,'T',300)
+    except:
+        t_d = 0.0
 
     return (t_d-273.15)*9/5 + 32  # converted to degreesF
 
@@ -131,13 +136,17 @@ def gamma(t,p,mmr):
 
     CP = 'CPMASS'
     CV = 'CVMASS'
-    gam_air = cp.PropsSI(CP,'T',t_K,'P',p_a,'air')/cp.PropsSI(CV,'T',t_K,'P',p_a,'air')
-    gam_h2o = cp.PropsSI(CP,'T',t_K,'P',p_w,'water')/cp.PropsSI(CV,'T',t_K,'P',p_w,'water')
 
-    w_h2o = mmr/(1+mmr)   # specific humidity (mass fraction water vapor)
-    w_air = 1 - w_h2o     # mass fraction of dry air
+    try:
+        gam_air = cp.PropsSI(CP,'T',t_K,'P',p_a,'air')/cp.PropsSI(CV,'T',t_K,'P',p_a,'air')
+        gam_h2o = cp.PropsSI(CP,'T',t_K,'P',p_w,'water')/cp.PropsSI(CV,'T',t_K,'P',p_w,'water')
 
-    gam_mix = gam_air*w_air + gam_h2o*w_h2o   # gamma of mixture
+        w_h2o = mmr/(1+mmr)   # specific humidity (mass fraction water vapor)
+        w_air = 1 - w_h2o     # mass fraction of dry air
+
+        gam_mix = gam_air*w_air + gam_h2o*w_h2o   # gamma of mixture
+    except:
+        gam_mix = 0.0
 
     return gam_mix
 
@@ -154,9 +163,12 @@ def density(t,p,mmr):
     p_w = p_Pa * mmr / (MH2O/MAIR + mmr)  # vapor pressure (Pa)
     p_a = p_Pa - p_w   # partial pressure of air (Pa)
 
-    rho_air = cp.PropsSI('D','T',t_K,'P',p_a,'air')    # density kg/m3
-    rho_h2o = cp.PropsSI('D','T',t_K,'P',p_w,'water')  # density kg/m3
-    rho_mix = (rho_air + rho_h2o) * KGM2LBFT           # density lbm/ft3
+    try:
+        rho_air = cp.PropsSI('D','T',t_K,'P',p_a,'air')    # density kg/m3
+        rho_h2o = cp.PropsSI('D','T',t_K,'P',p_w,'water')  # density kg/m3
+        rho_mix = (rho_air + rho_h2o) * KGM2LBFT           # density lbm/ft3
+    except:
+        rho_mix = 0.0
 
     return rho_mix
 #
