@@ -155,42 +155,6 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLineEdit" name="PressureEdit">
-    <property name="geometry">
-     <rect>
-      <x>350</x>
-      <y>750</y>
-      <width>271</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>14.696</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="TemperatureEdit">
-    <property name="geometry">
-     <rect>
-      <x>60</x>
-      <y>750</y>
-      <width>271</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>59</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="PressureLabel">
     <property name="geometry">
      <rect>
@@ -229,70 +193,11 @@
      <string>Temperature</string>
     </property>
    </widget>
-   <widget class="QLabel" name="PressureUnitLabel">
-    <property name="geometry">
-     <rect>
-      <x>765</x>
-      <y>100</y>
-      <width>71</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>20</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>psi</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="TemperatureUnitLabel">
-    <property name="geometry">
-     <rect>
-      <x>765</x>
-      <y>210</y>
-      <width>51</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>20</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>°F</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="SetConditionsButton">
-    <property name="geometry">
-     <rect>
-      <x>830</x>
-      <y>160</y>
-      <width>111</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>11</pointsize>
-     </font>
-    </property>
-    <property name="toolTip">
-     <string/>
-    </property>
-    <property name="text">
-     <string>Set Conditions</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="CloseButton">
     <property name="geometry">
      <rect>
       <x>660</x>
-      <y>720</y>
+      <y>740</y>
       <width>151</width>
       <height>61</height>
      </rect>
@@ -404,16 +309,21 @@
     <property name="geometry">
      <rect>
       <x>539</x>
-      <y>310</y>
+      <y>348</y>
       <width>201</width>
-      <height>181</height>
+      <height>161</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
     </property>
     <widget class="QRadioButton" name="StopButton">
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>140</y>
+       <y>120</y>
        <width>99</width>
        <height>21</height>
       </rect>
@@ -440,7 +350,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>110</y>
+       <y>90</y>
        <width>99</width>
        <height>21</height>
       </rect>
@@ -469,7 +379,7 @@
        <x>10</x>
        <y>4</y>
        <width>141</width>
-       <height>101</height>
+       <height>81</height>
       </rect>
      </property>
      <property name="font">
@@ -499,9 +409,9 @@
     <property name="geometry">
      <rect>
       <x>739</x>
-      <y>310</y>
+      <y>348</y>
       <width>221</width>
-      <height>181</height>
+      <height>161</height>
      </rect>
     </property>
     <property name="title">
@@ -511,7 +421,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>110</y>
+       <y>90</y>
        <width>82</width>
        <height>21</height>
       </rect>
@@ -535,7 +445,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>140</y>
+       <y>120</y>
        <width>82</width>
        <height>21</height>
       </rect>
@@ -561,7 +471,7 @@
        <x>10</x>
        <y>4</y>
        <width>211</width>
-       <height>101</height>
+       <height>81</height>
       </rect>
      </property>
      <property name="font">
@@ -1361,14 +1271,49 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>840</x>
-      <y>220</y>
-      <width>75</width>
-      <height>23</height>
+      <x>580</x>
+      <y>277</y>
+      <width>251</width>
+      <height>41</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
     <property name="text">
-     <string>PushButton</string>
+     <string>Set Airstream Conditions</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="PressureUnitDD">
+    <property name="geometry">
+     <rect>
+      <x>770</x>
+      <y>100</y>
+      <width>141</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>13</pointsize>
+     </font>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="TemperatureUnitDD">
+    <property name="geometry">
+     <rect>
+      <x>770</x>
+      <y>210</y>
+      <width>141</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>13</pointsize>
+     </font>
     </property>
    </widget>
   </widget>
@@ -1378,7 +1323,7 @@
      <x>0</x>
      <y>0</y>
      <width>1002</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSetup">

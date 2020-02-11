@@ -63,34 +63,34 @@ class SetCondGUI(QtWidgets.QDialog, scgui.Ui_Dialog):
         self.setPressChkBox.stateChanged.connect(self.pressToggled)  # set pressure changes state
         self.setTempChkBox.stateChanged.connect(self.tempToggled) # set temperature changes state
 
-
-    def getPress(self):
-        text = str(self.pressUnitDD.currentText())
-        print('text = '.format(text))
-
-        # Convert to PSI
-        self.setPressVal = float(self.pressLineEdit.text())
-        if text == 'Pa':
-            self.setPressVal = self.setPressVal * 1.450377e-4
-        elif text == 'kPa':
-            self.setPressVal = self.setPressVal * 0.1450377
-        elif text == 'mb':
-            self.setPressVal = self.setPressVal * 0.01450377
-        elif text == 'inHg':
-            self.setPressVal = self.setPressVal * 0.491154
-
-
-    def getTemp(self):
-        text = str(self.tempUnitDD.currentText())
-
-        # Convert to degrees Fahrenheit
-        self.setTempVal = float(self.tempLineEdit.text())
-        if text == 'degC':
-            self.setTempVal = self.setTempVal*1.8 + 32
-        elif text == 'degR':
-            self.setTempVal = self.setTempVal + 459.67
-        elif text == 'K':
-            self.setTempVal = (self.setTempVal-273.15)*1.8 + 32
+# Section probably not needed
+    # def getPress(self):
+    #     text = str(self.pressUnitDD.currentText())
+    #     print('text = '.format(text))
+    #
+    #     # Convert to PSI
+    #     self.setPressVal = float(self.pressLineEdit.text())
+    #     if text == 'Pa':
+    #         self.setPressVal = self.setPressVal * 1.450377e-4
+    #     elif text == 'kPa':
+    #         self.setPressVal = self.setPressVal * 0.1450377
+    #     elif text == 'mb':
+    #         self.setPressVal = self.setPressVal * 0.01450377
+    #     elif text == 'inHg':
+    #         self.setPressVal = self.setPressVal * 0.491154
+    #
+    #
+    # def getTemp(self):
+    #     text = str(self.tempUnitDD.currentText())
+    #
+    #     # Convert to degrees Fahrenheit
+    #     self.setTempVal = float(self.tempLineEdit.text())
+    #     if text == 'degC':
+    #         self.setTempVal = self.setTempVal*1.8 + 32
+    #     elif text == 'degR':
+    #         self.setTempVal = self.setTempVal + 459.67
+    #     elif text == 'K':
+    #         self.setTempVal = (self.setTempVal-273.15)*1.8 + 32
 
     def addDDOptions(self):
         ''' Add all defaults and options to all dropdown boxes'''
@@ -186,9 +186,6 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         # Initialize variables
         self.pressure = 14.696  # psi, reference static pressure (set to SL press for now)
         self.temperature = 70   # degF, reference static temperature
-        self.setTP()   # set initial values
-        self.old_pressure = self.pressure   # in case of needing to revert
-        self.old_temperature = self.temperature  # in case of needing to revert
 
         self.thread = None   # Humidity generator thread
         self.threadSS = None # WVSS thread
@@ -223,6 +220,9 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         # Set whether pressure and temperature is measured or fixed
         self.measuredPress = False
         self.measuredTemp = False
+
+        self.setPressActive = False
+        self.setTempActive = False
 
         # Default recording parameters
         self.rec_defaults = ['Pressure']
@@ -310,7 +310,6 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.unitss = [self.WVSSUnits1, self.WVSSUnits2, self.WVSSUnits3]
         self.LCDss = [self.WVSSLCD1, self.WVSSLCD2, self.WVSSLCD3]
 
-        self.unitsair = [self.PressureUnitLabel, self.TemperatureUnitLabel]
         self.LCDair = [self.PressLCD, self.TempLCD]
 
         self.lcLabels = [self.lcLabel1, self.lcLabel2, self.lcLabel3]
@@ -319,9 +318,13 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.lcRbuttons = [self.StartButton, self.StopButton]
         self.ssRbuttons = [self.WVSSstartButton, self.WVSSstopButton]
 
-        self.all_labels = self.lcLabels + self.ssLabels +self.unitsair
+        self.all_labels = self.lcLabels + self.ssLabels
         self.all_LCDs = self.LCDs + self.LCDss + self.LCDair
         self.all_Rbuttons = self.lcRbuttons + self.ssRbuttons
+
+        # Airstream conditions dropdown options
+        self.pressOptions = ['psi', 'Pa', 'kPa', 'mb', 'inHg']
+        self.tempOptions = ['degF', 'degC', 'degR', 'K', 'counts', 'V']
 
     def menuActions(self):
         self.menuFile.addAction('Exit', self.close).setShortcut('Ctrl+X')  # add option for exiting program from menubar
@@ -461,13 +464,90 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 msg.setText('Could NOT initialize Water Vapor Monitor System from port {}'.format(comSS))
                 msg.exec_()
 
+    # New Set Conditions dialog box
+    def pushButtonClicked(self):
+
+        def getPress(press, units):
+            # Convert to PSI
+            setPressVal = press
+            if units == 'Pa':
+                setPressVal = setPressVal * 1.450377e-4
+            elif units == 'kPa':
+                setPressVal = setPressVal * 0.1450377
+            elif units == 'mb':
+                setPressVal = setPressVal * 0.01450377
+            elif units == 'inHg':
+                setPressVal = setPressVal * 0.491154
+            return setPressVal
+
+        def getTemp(temp, units):
+            # Convert to degrees Fahrenheit
+            setTempVal = temp
+            if units == 'degC':
+                setTempVal = setTempVal * 1.8 + 32
+            elif units == 'degR':
+                setTempVal = setTempVal + 459.67
+            elif units == 'K':
+                setTempVal = (setTempVal - 273.15) * 1.8 + 32
+            return setTempVal
+
+        dlg = SetCondGUI(self)
+
+        # Disable select option if pressure and temperature are set to read
+        if self.setPressActive:
+            msg='Pressure is set to read from WVSS, use Ctrl+D to reconfigure if you would like to set the '+\
+                 'pressure manually'
+            dlg.setPressChkBox.setChecked(False)
+            dlg.setPressChkBox.setEnabled(False)
+            dlg.setPressChkBox.setToolTip(msg)
+
+            dlg.pressLineEdit.setText('')
+            dlg.pressLineEdit.setEnabled(False)
+            dlg.pressLineEdit.setToolTip(msg)
+        else:
+            dlg.setPressChkBox.setEnabled(True)
+            dlg.pressLineEdit.setEnabled(True)
+
+        if self.setTempActive:
+            msg='Temperature is set to read from DataQ ADC, use Ctrl+D to reconfigure if you would like to set the '+\
+                 'temperature manually'
+            dlg.setTempChkBox.setChecked(False)
+            dlg.setTempChkBox.setEnabled(False)
+            dlg.setTempChkBox.setToolTip(msg)
+
+            dlg.tempLineEdit.setText('')
+            dlg.tempLineEdit.setEnabled(False)
+            dlg.tempLineEdit.setToolTip(msg)
+        else:
+            dlg.setTempChkBox.setEnabled(True)
+            dlg.tempLineEdit.setEnabled(True)
+
+
+        dlg.buttonBox.accepted.connect(dlg.accept)
+        dlg.buttonBox.rejected.connect(dlg.reject)
+
+        # The following executes the dialog box and returns whether it was
+        # accepted or rejected
+        result = dlg.exec_()
+        if result == QtWidgets.QDialog.Accepted:
+
+            # Check for set pressure to be checked
+            if dlg.setPressChkBox.isChecked():
+                pressVal = float(dlg.pressLineEdit.text())
+                units = str(dlg.pressUnitDD.currentText())
+                self.updatePress(getPress(pressVal, units))
+            if dlg.setTempChkBox.isChecked():
+                tempVal = float(dlg.tempLineEdit.text())
+                units = str(dlg.tempUnitDD.currentText())
+                self.updateTemp(getTemp(tempVal, units))
+
     def viewFormatting(self):
         # Set tooltips
         self.StartButton.setToolTip('Start scanning the humidity generator')
         self.StopButton.setToolTip('Stop scanning the humidity generator')
         self.WVSSstartButton.setToolTip('Start scanning the WVSS')
         self.WVSSstopButton.setToolTip('Stop scanning the WVSS')
-        self.SetConditionsButton.setToolTip('Conditions entered above are applied')
+        self.pushButton.setToolTip('Manually apply airstream conditions')
 
         # Change theme
 
@@ -493,6 +573,10 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         ''' Add all options to all dropdown boxes'''
         for box in self.boxes:
             box.addItems(self.DDitems)
+
+        # Add for the airstream conditions dropdowns
+        self.PressureUnitDD.addItems(self.pressOptions)
+        self.TemperatureUnitDD.addItems(self.tempOptions)
 
     def defaultDD(self):
         ''' Set default selections for dropdown menus '''
@@ -540,13 +624,13 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             if self.dpGenActive:
                 self.thread.change_value.connect(self.updateLCD)
             else:
-                self.updateLCD(0)
+                self.updateLCD(0)   # Should never get here because dpGenActive should always be set to true
 
             #  Temperature
             if self.setTempActive:
                 self.thread.change_value_temp.connect(self.updateTemp)
-            else:
-                self.updateTemp(self.temperature)
+            # else:
+            #     self.updateTemp(self.temperature)
 
             # [self.thread.change_value.connect(x) for x in [self.updateLCD, self.captureDataLC]]  # Connect to multiple slots
 
@@ -622,84 +706,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         else:
             print('WARNING: heartbeat unable to determine state of a device')
 
-    def setTP(self):
-        checkP = float(self.PressureEdit.text())
-        checkT = float(self.TemperatureEdit.text())
-
-        # Check pressure
-        if 0 < checkP <= 50:
-            self.pressure = checkP
-        else:
-            self.pressure = self.old_pressure
-            self.PressureEdit.setText(str(self.pressure))
-
-            msg = common_def.error_msg()
-            msg.setText('{} psia is NOT in the range 0-50 psia'.format(checkP))
-            msg.exec_()
-
-        # Check temperature
-        if -200 <= checkT <= 200:
-            self.temperature = checkT
-        else:
-            self.temperature = self.old_temperature
-            self.TemperatureEdit.setText(str(self.temperature))
-
-            msg = common_def.error_msg()
-            msg.setText('{} degF is NOT in the range -200-200 degF'.format(checkT))
-            msg.exec_()
-
-        self.old_pressure = self.pressure
-        self.old_temperature = self.temperature
-
-    def pushButtonClicked(self):
-
-        def getPress(press, units):
-            # Convert to PSI
-            setPressVal = press
-            if units == 'Pa':
-                setPressVal = setPressVal * 1.450377e-4
-            elif units == 'kPa':
-                setPressVal = setPressVal * 0.1450377
-            elif units == 'mb':
-                setPressVal = setPressVal * 0.01450377
-            elif units == 'inHg':
-                setPressVal = setPressVal * 0.491154
-            return setPressVal
-
-        def getTemp(temp, units):
-            # Convert to degrees Fahrenheit
-            setTempVal = temp
-            if units == 'degC':
-                setTempVal = setTempVal * 1.8 + 32
-            elif units == 'degR':
-                setTempVal = setTempVal + 459.67
-            elif units == 'K':
-                setTempVal = (setTempVal - 273.15) * 1.8 + 32
-            return setTempVal
-
-        dlg = SetCondGUI(self)
-        dlg.buttonBox.accepted.connect(dlg.accept)
-        dlg.buttonBox.rejected.connect(dlg.reject)
-
-        # The following executes the dialog box and returns whether it was
-        # accepted or rejected
-        result = dlg.exec_()
-        if result == QtWidgets.QDialog.Accepted:
-
-            # Check for set pressure to be checked
-            if dlg.setPressChkBox.isChecked():
-                pressVal = float(dlg.pressLineEdit.text())
-                units = str(dlg.pressUnitDD.currentText())
-                self.pressure = getPress(pressVal, units)
-                print('Pressure = {}'.format(self.pressure))
-            if dlg.setTempChkBox.isChecked():
-                tempVal = float(dlg.tempLineEdit.text())
-                units = str(dlg.tempUnitDD.currentText())
-                self.temperature = getTemp(tempVal, units)
-                print('Temperature = {}'.format(self.temperature))
-
     def updateBackgroundConditions(self):
-        self.SetConditionsButton.clicked.connect(self.setTP)
         self.pushButton.clicked.connect(self.pushButtonClicked)
 
     def updateStartStopButtons(self):
@@ -710,15 +717,16 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.WVSSstopButton.clicked.connect(self.SStopClicked)
 
     def updateDDBoxes(self):
+        # Connect the humidity dropdown boxes
         for box, unit, units in zip(self.boxes, self.units, self.unitss):
             box.activated[str].connect(
                lambda text, unit=unit: self.updateUnits(text, unit))
             box.activated[str].connect(
                lambda text, units=units: self.updateUnits(text, units))
 
-    def updateUnitsAir(self, text, unit):
-        unit.setFont(QtGui.QFont('Arial', 20))
-        pass
+        # Connect the airstream dropdown boxes
+        self.PressureUnitDD.activated[str].connect(lambda text, p=self.pressure: self.updatePress(p))
+        self.TemperatureUnitDD.activated[str].connect(lambda text, t=self.temperature: self.updateTemp(t))
 
     def updateUnits(self, text, unit):
         unit.setFont(QtGui.QFont('Arial', 20))
@@ -743,13 +751,14 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         elif text == 'Vapor Pressure':
             unit.setText('psi')
 
+
     def updatePress(self, pressure):
         self.pressure = pressure  # pressure psi
+        self.box_loop_air(self.PressLCD, self.PressureUnitDD, pressure)
 
     def updateTemp(self, temp):
         self.temperature = temp  # temperature degrees F
-        print(self.temperature)
-        self.TempLCD.display('{:.2f}'.format(round(self.temperature, 2)))
+        self.box_loop_air(self.TempLCD, self.TemperatureUnitDD, temp)
 
     def updateLCD(self, counts):
         # Calculate various atmospheric conditions
@@ -817,6 +826,12 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def updateLCDss(self, raw_string):
         # Convert raw_string to list of values
         vals = WVSS.parse_string(raw_string)
+
+        # Determine if pressure should be used
+        if self.setPressActive:
+            self.updatePress(vals[1] / 0.01450377)  # display pressure in psi from mb
+
+        # Calculate relevant variables
         voltage = 9999.0
         counts = vals[3]
         ppmv = vals[0]
@@ -864,6 +879,31 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 lcd.display('{:.4f}'.format(round(values[8], 4)))
             elif box_val == 'Vapor Pressure':
                 lcd.display('{:.3f}'.format(round(values[9], 3)))
+
+    def box_loop_air(self, lcd, box, value):
+        box_val = str(box.currentText())
+        if box_val == 'psi':
+            lcd.display('{:.3f}'.format(round(value, 3)))
+        elif box_val == 'Pa':
+            lcd.display('{0:d}'.format(int(value/1.450377e-4)))
+        elif box_val == 'kPa':
+            lcd.display('{:.3f}'.format(round(value/0.1450377, 3)))
+        elif box_val == 'mb':
+            lcd.display('{:.3f}'.format(round(value/0.01450377, 3)))
+        elif box_val == 'inHg':
+            lcd.display('{:.2f}'.format(round(value/0.491154, 2)))
+        elif box_val == 'degF':
+            lcd.display('{:.2f}'.format(round(value, 2)))
+        elif box_val == 'degC':
+            lcd.display('{:.2f}'.format(round((value-32) / 1.8, 2)))
+        elif box_val == 'degR':
+            lcd.display('{:.2f}'.format(round(value + 459.67, 2)))
+        elif box_val == 'K':
+            lcd.display('{:.2f}'.format(round((value-32)/1.8 + 273.15, 2)))
+        elif box_val == 'counts':
+            lcd.display('{0:d}'.format(int(0.0)))
+        elif box_val == 'V':
+            lcd.display('{:.3f}'.format(round(1.0, 3)))
 
     def editRadioButtons(self):
         for Rbutton in self.all_Rbuttons:

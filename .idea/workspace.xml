@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="89220a0d-e911-44b5-a94a-82a11ff3a45b" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/GUIs/basic_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/GUIs/basic_GUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GUIs/basic_GUI.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUIs/basic_GUI.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/RUN_THIS.py" beforeDir="false" afterPath="$PROJECT_DIR$/RUN_THIS.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,13 +19,13 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/humref/spectra_equiv.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="510">
+                <state relative-caret-position="2856">
                   <caret line="170" column="21" selection-start-line="170" selection-start-column="21" selection-end-line="170" selection-end-column="21" />
                 </state>
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="true">
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/ADC.py">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="187">
@@ -32,11 +34,11 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="false">
+          <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/WVSS.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="17">
-                  <caret line="14" selection-start-line="14" selection-end-line="14" />
+                <state relative-caret-position="337">
+                  <caret line="87" column="51" lean-forward="true" selection-start-line="87" selection-start-column="51" selection-end-line="87" selection-end-column="51" />
                 </state>
               </provider>
             </entry>
@@ -57,8 +59,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/RUN_THIS.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="217">
-                  <caret line="677" column="29" selection-start-line="677" selection-start-column="29" selection-end-line="677" selection-end-column="29" />
+                <state relative-caret-position="420">
+                  <caret line="311" selection-start-line="311" selection-end-line="311" />
                   <folding>
                     <element signature="e#95#127#0" expanded="true" />
                     <element signature="e#531#1563#0" />
@@ -68,20 +70,25 @@
                     <element signature="e#10819#11137#0" />
                     <element signature="e#11184#11352#0" />
                     <element signature="e#11395#11972#0" />
-                    <element signature="e#12010#13169#0" />
                     <element signature="e#13206#13620#0" />
                     <element signature="e#13662#16518#0" />
                     <element signature="e#16559#18170#0" />
-                    <element signature="e#18210#19328#0" />
-                    <element signature="e#19366#19480#0" />
+                    <element signature="e#19487#22389#0" />
                     <element signature="e#19515#19987#0" />
-                    <element signature="e#20045#20349#0" />
                     <element signature="e#20406#20599#0" />
+                    <element signature="e#20636#21584#0" />
                     <element signature="e#21621#22154#0" />
-                    <element signature="e#22200#24043#0" />
                     <element signature="e#25813#26049#0" />
-                    <element signature="e#26088#26374#0" />
-                    <element signature="e#26526#27288#0" />
+                    <element signature="e#31356#32118#0" />
+                    <element signature="e#27331#28514#0" />
+                    <element signature="e#28600#29971#0" />
+                    <element signature="e#30020#31141#0" />
+                    <element signature="e#36139#37387#0" />
+                    <element signature="e#32479#32584#0" />
+                    <element signature="e#32633#33521#0" />
+                    <element signature="e#33566#34867#0" />
+                    <element signature="e#35275#35610#0" />
+                    <element signature="e#35689#35992#0" />
                   </folding>
                 </state>
               </provider>
@@ -93,20 +100,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>selected</find>
-      <find>deg</find>
-      <find>°</find>
-      <find>self.chkbox</find>
-      <find>tmpOpen</find>
-      <find>self.rdg</find>
-      <find>self.incr</find>
-      <find>check_for_latest_reading</find>
-      <find>self.active</find>
-      <find>self.recLocEdit</find>
-      <find>self.rdgNumEdit</find>
-      <find>updateBackgroundConditions</find>
-      <find>lcd</find>
-      <find>self.all_LCDs</find>
       <find>self.all_labels</find>
       <find>psia</find>
       <find>humgenunits</find>
@@ -123,6 +116,20 @@
       <find>templc</find>
       <find>59.</find>
       <find>59</find>
+      <find>updatePress</find>
+      <find>hardwaregui</find>
+      <find>setPressAct</find>
+      <find>updatepress</find>
+      <find>updateTemp</find>
+      <find>temperature</find>
+      <find>tempOptions</find>
+      <find>getPress(</find>
+      <find>updateDDBoxes()</find>
+      <find>updateDDBoxes(</find>
+      <find>settp</find>
+      <find>self.old_temperature</find>
+      <find>temperatureunitlab</find>
+      <find>self.unitsair</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -133,8 +140,8 @@
       <list>
         <option value="$PROJECT_DIR$/ADC.py" />
         <option value="$PROJECT_DIR$/record.py" />
-        <option value="$PROJECT_DIR$/WVSS.py" />
         <option value="$PROJECT_DIR$/humref/spectra_equiv.py" />
+        <option value="$PROJECT_DIR$/WVSS.py" />
         <option value="$PROJECT_DIR$/RUN_THIS.py" />
       </list>
     </option>
@@ -151,10 +158,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="1057" />
-    <option name="y" value="236" />
-    <option name="width" value="1623" />
-    <option name="height" value="1223" />
+    <option name="x" value="846" />
+    <option name="y" value="189" />
+    <option name="width" value="1298" />
+    <option name="height" value="978" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -212,10 +219,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <frame x="-8" y="-8" width="2576" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.11426684" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.06875993" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -246,27 +253,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/WVSS.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="14" selection-start-line="14" selection-end-line="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/humref/spectra_equiv.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="170" column="21" selection-start-line="170" selection-start-column="21" selection-end-line="170" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/GUIs/basic_GUI.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="209">
-          <caret line="458" column="19" selection-start-line="458" selection-start-column="13" selection-end-line="458" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ADC.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
@@ -274,10 +260,38 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/humref/spectra_equiv.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2856">
+          <caret line="170" column="21" selection-start-line="170" selection-start-column="21" selection-end-line="170" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2019.1/system/python_stubs/-1548362644/PyQt5/QtCore/QThread.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-434">
+          <caret line="100" column="8" selection-start-line="100" selection-start-column="8" selection-end-line="100" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WVSS.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="337">
+          <caret line="87" column="51" lean-forward="true" selection-start-line="87" selection-start-column="51" selection-end-line="87" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/GUIs/basic_GUI.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="281">
+          <caret line="477" column="24" selection-start-line="477" selection-start-column="13" selection-end-line="477" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/RUN_THIS.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="677" column="29" selection-start-line="677" selection-start-column="29" selection-end-line="677" selection-end-column="29" />
+        <state relative-caret-position="420">
+          <caret line="311" selection-start-line="311" selection-end-line="311" />
           <folding>
             <element signature="e#95#127#0" expanded="true" />
             <element signature="e#531#1563#0" />
@@ -287,20 +301,25 @@
             <element signature="e#10819#11137#0" />
             <element signature="e#11184#11352#0" />
             <element signature="e#11395#11972#0" />
-            <element signature="e#12010#13169#0" />
             <element signature="e#13206#13620#0" />
             <element signature="e#13662#16518#0" />
             <element signature="e#16559#18170#0" />
-            <element signature="e#18210#19328#0" />
-            <element signature="e#19366#19480#0" />
+            <element signature="e#19487#22389#0" />
             <element signature="e#19515#19987#0" />
-            <element signature="e#20045#20349#0" />
             <element signature="e#20406#20599#0" />
+            <element signature="e#20636#21584#0" />
             <element signature="e#21621#22154#0" />
-            <element signature="e#22200#24043#0" />
             <element signature="e#25813#26049#0" />
-            <element signature="e#26088#26374#0" />
-            <element signature="e#26526#27288#0" />
+            <element signature="e#31356#32118#0" />
+            <element signature="e#27331#28514#0" />
+            <element signature="e#28600#29971#0" />
+            <element signature="e#30020#31141#0" />
+            <element signature="e#36139#37387#0" />
+            <element signature="e#32479#32584#0" />
+            <element signature="e#32633#33521#0" />
+            <element signature="e#33566#34867#0" />
+            <element signature="e#35275#35610#0" />
+            <element signature="e#35689#35992#0" />
           </folding>
         </state>
       </provider>
