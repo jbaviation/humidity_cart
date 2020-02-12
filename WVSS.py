@@ -90,7 +90,11 @@ def parse_string(raw_output_string):
 
     # With the way that the padding works, some elements return empty strings
     list_string = list(filter(None, list_string))    # to remove empty strings
-    list_vals = [float(s) for s in list_string]      # convert to floating points
+    try:
+        list_vals = [float(s) for s in list_string]      # convert to floating points
+    except:
+        print('Could NOT parse Spectra Sensor data')
+        list_vals = [0.0 for s in list_string]
 
 # Section currently NOT USED --------------------------------------------------------------
     # try:

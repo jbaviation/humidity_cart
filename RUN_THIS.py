@@ -224,6 +224,9 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.setPressActive = False
         self.setTempActive = False
 
+        # Default temperature measurement not in counts
+        self.use_temp_counts = False
+
         # Default recording parameters
         self.rec_defaults = ['Pressure']
         self.rec_options = ['Temperature degF','Temperature degC','Dew Point degF','Dew Point degC','Relative Humidity',\
@@ -628,9 +631,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
             #  Temperature
             if self.setTempActive:
+                self.use_temp_counts = True  # Indicates that temp value passed to updateTemp() is in counts
                 self.thread.change_value_temp.connect(self.updateTemp)
-            # else:
-            #     self.updateTemp(self.temperature)
 
             # [self.thread.change_value.connect(x) for x in [self.updateLCD, self.captureDataLC]]  # Connect to multiple slots
 
@@ -751,12 +753,24 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         elif text == 'Vapor Pressure':
             unit.setText('psi')
 
-
     def updatePress(self, pressure):
         self.pressure = pressure  # pressure psi
         self.box_loop_air(self.PressLCD, self.PressureUnitDD, pressure)
 
     def updateTemp(self, temp):
+        # Convert units from counts to V to degF
+        if self.use_temp_counts:
+
+            import TC
+            self.counts = temp
+            self.V = 0.0003*self.counts   # convert from counts to Volts
+            temp = (self.V-1)/4*100
+            # temp = TC.TC_typeJ(self.V)  # convert voltage to TdegF
+
+        else:
+            self.counts = -9999
+            self.V = -9999.9
+
         self.temperature = temp  # temperature degrees F
         self.box_loop_air(self.TempLCD, self.TemperatureUnitDD, temp)
 
@@ -829,7 +843,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         # Determine if pressure should be used
         if self.setPressActive:
-            self.updatePress(vals[1] / 0.01450377)  # display pressure in psi from mb
+            self.updatePress(vals[1] * 0.01450377)  # display pressure in psi from mb
 
         # Calculate relevant variables
         voltage = 9999.0
@@ -881,6 +895,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 lcd.display('{:.3f}'.format(round(values[9], 3)))
 
     def box_loop_air(self, lcd, box, value):
+        import TC
         box_val = str(box.currentText())
         if box_val == 'psi':
             lcd.display('{:.3f}'.format(round(value, 3)))
@@ -901,9 +916,9 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         elif box_val == 'K':
             lcd.display('{:.2f}'.format(round((value-32)/1.8 + 273.15, 2)))
         elif box_val == 'counts':
-            lcd.display('{0:d}'.format(int(0.0)))
+            lcd.display('{0:d}'.format(int(self.counts)))
         elif box_val == 'V':
-            lcd.display('{:.3f}'.format(round(1.0, 3)))
+            lcd.display('{:.3f}'.format(round(self.V, 3)))
 
     def editRadioButtons(self):
         for Rbutton in self.all_Rbuttons:
