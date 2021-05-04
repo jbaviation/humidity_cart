@@ -6,12 +6,12 @@
  3. [Hardware Requirements](#hard)
  4. [Software Requirements](#install)
  5. [Quick Start Guide](#use)
-  - [Program Launch](#launch)
-  - [Device Setup](#dsetup)
-  - [Recording Setup](#ssetup)
-  - [Set Airstream Conditions](#setac)
-  - [Scan Systems](#scan)
-  - [Data Recording](#rec)
+    - [Program Launch](#launch)
+    - [Device Setup](#dsetup)
+    - [Recording Setup](#ssetup)
+    - [Set Airstream Conditions](#setac)
+    - [Scan Systems](#scan)
+    - [Data Recording](#rec)
  6. [Future Capabilities](#future)
  7. [Acknowledgements](#kudos)
 
@@ -56,12 +56,12 @@ From the main directory of this project enter in the command line to access the 
 ```
 GUI will launch:<br>
 
-![launch](./images/gui_launch.png)
+![launch](/images/gui_launch.PNG)
 
 #### Device Setup<a name="dsetup"></a>
 Click the "Setup" menubar item and select "Device Setup" (or keyboard shortcut CTRL+D) to configure the devices.  The following screen should appear:<br>
 
-![device setup](./images/device_setup.png)
+![device setup](/images/device_setup.PNG)
 
 Type the ports that correspond to the DataQ device and Water Vapor Monitor System. A future capability of this program will allow for a thermocouple connection to the DataQ device for enhanced temperature compensation. Check the "Use Pressure" checkbox if a local atmospheric pressure is unavailable. Click on Apply to accept the changes.
 
@@ -70,14 +70,14 @@ If a connection to one or more systems failed, an error message will appear and 
 #### Recording Setup<a name="ssetup"></a>
 Click the "Setup" menubar item and select "Recording Setup" (or keyboard shortcut CTRL+R) to enter the data recording configuration.
 
-![recording setup](./images/recording_setup.png)
+![recording setup](/images/recording_setup.PNG)
 
 Customize the recording setup based on your needs then click Apply.  The Record button is now active.
 
 #### Set Airstream Conditions<a name="setac"></a>
 From the main GUI, click the "Set Airstream Conditions" to access the following screen:
 
-![airstream conditions](./images/as_conditions.png)
+![airstream conditions](/images/as_conditions.PNG)
 
 Check the box from whichever variable you want to remain constant and type in the numerical value in any of the units within the dropdown box.  Select OK to accept changes.
 
