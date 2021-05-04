@@ -1,1 +1,1 @@
-20200211_183403,4,15.0,humidity_cart,C:/Users/jborman/Documents/Data/Humidity,Temperature degF,Dew Point degF,Relative Humidity,Mass Mixing Ratio,Vapor Concentration
+20210503_223939,1,3.0,humidity_cart,Z:/Data/Humidity,Temperature degF,Dew Point degF,Relative Humidity,Mass Mixing Ratio,Vapor Concentration
