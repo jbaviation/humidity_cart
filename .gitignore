@@ -1,0 +1,7 @@
+# No pycache/idea folders
+__pycache__/*
+*/__pycache__/*
+.idea/*
+
+# Temp files
+tmp.txt
