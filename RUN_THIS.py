@@ -6,6 +6,7 @@ import ADC
 import WVSS
 import record
 import time
+from pathlib import Path
 
 ## GUI application------------------------------------------------------------------
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -257,19 +258,15 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             'Mass Mixing Ratio','Vapor Concentration','Vapor Pressure','Gamma','Density','Voltage','Counts']
 
     def setupImages(self):
-        # Change directory for image
-        owd = os.getcwd()           # original working directory
-        os.chdir(owd+'\\images')    # change directory to location of images
+        # Instead of changing directory, just get it and apply to each LED image
+        dir = Path(os.getcwd()) / 'images'
 
         # Define LED images
-        self.greenLED = QtGui.QPixmap('green_led.png')
-        self.amberLED = QtGui.QPixmap('amber_led.png')
-        self.offLED =   QtGui.QPixmap('off_led.png')
+        self.greenLED = QtGui.QPixmap(str(dir / 'green_led.png'))
+        self.amberLED = QtGui.QPixmap(str(dir / 'amber_led.png'))
+        self.offLED =   QtGui.QPixmap(str(dir / 'off_led.png'))
 
-        self.stopSign = QtGui.QPixmap('stopsign.png')
-
-        # Go back to original directory
-        os.chdir(owd)    # change directory to original working directory
+        self.stopSign = QtGui.QPixmap(str(dir / 'stopsign.png'))
 
     def genRecordButton(self):
         self.statusLED.setPixmap(self.amberLED)  # turn the light to amber

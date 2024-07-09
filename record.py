@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import time, datetime, os
 import common_def
+from pathlib import Path
 from PyQt5 import QtGui, QtCore
 
 
@@ -37,11 +38,11 @@ class Recording:
 
     def getFullFile(self):
         # If .csv is in filename, strip it out
-        if '.csv' in self.filename:
-            self.filename = self.filename[0:self.filename.find('.csv')]
+        if '.csv' not in self.filename.lower():
+            self.filename = self.filename + '.csv'
 
         # Combine all necessary elements of filename into full_filename
-        self.full_filename = os.path.join(self.fileLoc,self.filename+'.csv')
+        self.full_filename = Path(self.fileLoc) / self.filename
 
     def check_for_latest_reading(self):
         if os.path.isfile(self.full_filename):
