@@ -1,1 +1,1 @@
-20240709_203810,1,3.0,humidity_cart.csv,/Users/jonathanborman/Documents/projects/humidity_cart/data,Temperature degF,Dew Point degF,Relative Humidity,Mass Mixing Ratio,Vapor Concentration
+20240813_193956,7,3.0,humidity_cart.xlsx,C:/Users/analysis/Documents/humidity_cart/data,Temperature degF,Temperature degC,Dew Point degF,Dew Point degC,Relative Humidity,Mass Mixing Ratio,Vapor Concentration,Vapor Pressure,Gamma,Density

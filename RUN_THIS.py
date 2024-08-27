@@ -156,7 +156,7 @@ class HardwareGUI(QtWidgets.QDialog, sgui.Ui_dialog):
 #----------------------------------------------------------------------------------
 
 # Global variables go here
-comLC = 'COM4'   # Default LiCor COM port
+comLC = 'COM7'   # Default LiCor COM port
 comSS = 'COM1'  # Default SS COM port
 
 avgLength = 10   # Number of seconds to record
@@ -357,13 +357,14 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             self.rec = record.Recording(
                 record_length = avgLength,
                 filename = fname,
+                fileloc = outLoc,
                 headers = self.rec_defaults,  # Data output is now fixed so headers can be hardcoded
             )  
 
             # Set line edit values
             self.recLengthEdit.setText(str(self.rec.record_length))
             self.recLocEdit.setText(str(self.rec.full_filename))
-            self.rdgNumEdit.setText(str(self.rec.rdg-1))
+            self.rdgNumEdit.setText(str(self.rec.rdg))
 
             print('File to be saved as: {}'.format(self.rec.full_filename))
 
@@ -822,7 +823,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             elif text == 'Temperature degF':
                 rec_values.append(self.temperature)
             elif text == 'Temperature degC':
-                rec_values.append(self.temperature)
+                rec_values.append((self.temperature-32)*5/9)
             elif text == 'Pressure':
                 rec_values.append(self.pressure)
             else:

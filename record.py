@@ -12,18 +12,24 @@ import xlwings as xw
 
 class Recording:
     date = time.strftime('%Y%m%d')
-    def __init__(self, record_length=10, filename='humidity_cart_{}.xlsx'.format(date),\
-                  init_reading_number=1, headers=[]):
+    def __init__(
+        self, 
+        record_length=10, 
+        filename='humidity_cart_{}.xlsx'.format(date),
+        fileloc=os.getcwd(),
+        init_reading_number=1, 
+        headers=[]
+    ):
         super(Recording, self).__init__()
         '''Set input variables based on inputs
             record_length = length in seconds of each recording
             filename = name of the file to be output
             init_reading_number = starting reading number'''
-        iheaders = ['Reading','DateTime']  # start with initial headers
+        iheaders = ['Reading','Date','Time','Recording Length','Total Air Pressure']  # start with initial headers
         self.headers = iheaders + headers
         self.record_length = record_length
         self.filename = filename
-        self.fileLoc = os.getcwd()
+        self.fileLoc = fileloc
         self.getFullFile()
         self.connectWorkbook()
 
@@ -60,7 +66,18 @@ class Recording:
             self.sht = self.wb.sheets[0]
 
             # Get latest reading
-            self.rdg = int(self.sht.used_range.value[-1][0])
+            try:
+                self.rdg = int(self.sht.used_range.value[-1][0])
+            except:
+                # Handle exception where only headers exist with no reading number
+                msg = common_def.error_msg()
+                msg.setWindowTitle("NO DATA DETECTED!")
+                msg.setText("The requested output file already exists but no data recordings were " +
+                    "detected in the file. Confirm this is correct, otherwise data can be mislabeled " +
+                    "or overwritten."
+                )
+                msg.exec_()
+                self.rdg = 0
 
         else:
             # Start a new workbook and set header
@@ -69,14 +86,27 @@ class Recording:
             self.sht["A1"].value = [self.headers]
 
             # Set reading to 1
-            self.rdg = 1
+            self.rdg = 0
 
             # Save new workbook
             self.save_data()
 
-    def save_data(self):
+    def save_data(self, max_attempts=5, wait_between=1):
         # Easy way to quickly save newly written data
-        self.wb.save(self.full_filename)
+        for n in range(max_attempts):
+            try:
+                self.wb.save(self.full_filename)
+                print("Workbook saved!")
+                return
+            except:
+                print("Failed attempt to save ({}). Retrying after {} seconds.".format(n, wait_between))
+                time.sleep(wait_between)
+                continue
+
+        msg = common_def.error_msg()
+        msg.setText('Failed to autosave the Spreadsheet after {} attempts. '.format(max_attempts) + 
+            'Consider manually saving to avoid losing work.')
+        msg.exec_()
 
     def captureDataSS(self, values):
         '''Captures data for the spectra sensor.'''
@@ -117,10 +147,12 @@ class Recording:
 
                 except:  # file is open cannot write so throw an error
                     msg = common_def.error_msg()
-                    msg.setText('DATA NOT WRITTEN TO FILE:\n\n{} is open; '.format(self.filename_ext) + \
-                                'please close the file before continuing')
+                    msg.setText('Data recording error, this recording was not captured in the Spreadsheet. ' + 
+                        'Please contact developer!')
                     msg.exec_()
 
+                # Attempt to save
+                self.save_data()
             self.continuationSS = False  # turn off continuation
 
     def captureDataLC(self, values):
@@ -162,48 +194,71 @@ class Recording:
 
                 except:  # file is open cannot write so throw an error
                     msg = common_def.error_msg()
-                    msg.setText('DATA NOT WRITTEN TO FILE:\n\n{} is open; '.format(self.filename_ext) + \
-                                'please close the file before continuing')
+                    msg.setText('Data recording error, this recording was not captured in the Spreadsheet. ' + 
+                        'Please contact developer!')
                     msg.exec_()
 
-
+                # Attempt to save
+                self.save_data()
             self.continuationLC = False  # turn off continuation
 
     def interpretOutput(self, data, src):
         '''After reading has been captured, this method evaluates what to do with it.'''
-        # Convert to dataframe
-        out_df = self.convertToDataFrame(data, src)
+        out_df = self.insertDataToWorkbook(data, src)
 
-    def convertToDataFrame(self, dataArray, src):
-        print(src)
-        print(dataArray)
-        print("------------")
-        return
-
+    def insertDataToWorkbook(self, dataArray, src):
         # Create initial dataset from dataLC and dataSS
-        df = pd.DataFrame(dataArray, columns=self.headers)
+        dataArray_columns = [
+            'Reading',
+            'DateTime',
+            'Temperature degF',
+            'Temperature degC',
+            'Dew Point degF',
+            'Dew Point degC',
+            'Relative Humidity',
+            'Mass Mixing Ratio',
+            'Vapor Concentration',
+            'Vapor Pressure',
+            'Gamma',
+            'Density',
+            'Total Air Pressure'
+        ]
+        df = pd.DataFrame(dataArray, columns=dataArray_columns)
 
-        # Determine what to do with the data based on averaging
-        if self.avg_on:
-            # Work with time first
-            most_recent = df.DateTime.max()   # Take max date for use in averaged data
-            date = most_recent.strftime('%Y-%m-%d')
-            Time = most_recent.strftime('%H:%M:%S.%f')
+        # Determine what to do with the data based on averaging 
+        # if self.avg_on: (averaging is only option now 2024-08-13)
 
-            rec_time = time.time() - self.time_start
+        # Work with time first
+        most_recent = df.DateTime.max()   # Take max date for use in averaged data
+        date = most_recent.strftime('%Y-%m-%d')
+        Time = most_recent.strftime('%H:%M:%S')
 
-            # Prep to combine averaged data
-            row_name = 'mean'
-            df.loc[row_name] = df.mean(axis=0)   # Average all columns in the last row of the dataframe
-            ini_cols = pd.DataFrame({'Reading': [self.rdg], 'Source': [src], 'Seconds Avg': [rec_time],\
-                           'Date': [date], 'Time': [Time]}, index=[row_name])  # Initial (fixed) columns
-            sel_cols = df.iloc[[-1],2:]   # Last row and Columns that were selected by the user
-            out_df = pd.concat([ini_cols,sel_cols], axis=1, sort=False)
-        else:
-            out_df = df
+        rec_time = time.time() - self.time_start
 
-        return out_df
+        # Drop unneeded columns that don't work with averaging
+        df = df.drop(['Reading', 'DateTime'], axis=1)
 
+        # Average from each columns
+        df = df.mean(axis=0).to_frame().T
+
+        # Insert required metadata columns
+        df.loc[0, 'Reading'] = self.rdg
+        df.loc[0, 'Date'] = date
+        df.loc[0, 'Time'] = Time
+        df.loc[0, 'Source'] = src
+        df.loc[0, 'Recording Length'] = rec_time
+
+        # Find first cell of row to write to
+        last_row = int(self.sht.used_range.last_cell.row)
+        row_str = "$A${}".format(last_row+1)
+        empty_row = self.sht[row_str]  # Should be column A of next row
+        print("Writing reading {} to cell {} of Workbook".format(self.rdg, empty_row.get_address()))
+
+        # Prep for write data into spreadsheet
+        df = df[self.headers]
+        empty_row.value = df.iloc[0,:].to_list()
+
+        return
 
 
 class Recording_OLD:
