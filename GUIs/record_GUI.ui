@@ -137,19 +137,6 @@
     </rect>
    </property>
   </widget>
-  <widget class="QLabel" name="label_5">
-   <property name="geometry">
-    <rect>
-     <x>380</x>
-     <y>250</y>
-     <width>31</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>.csv</string>
-   </property>
-  </widget>
   <widget class="QLineEdit" name="outLocEdit">
    <property name="geometry">
     <rect>
@@ -173,7 +160,7 @@
     <string>...</string>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>30</x>

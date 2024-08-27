@@ -22,8 +22,23 @@ class RecGUI(QtWidgets.QDialog, rgui.Ui_dialog):
 
         global avgLength, fname, outLoc
 
-        self.selected = [self.tempFBox,self.dpFBox,self.rhBox,self.mmrBox,self.vcBox]
+        # Set tooltip to describe change in output options
+        new_tooltip = "Specifying outputs is no longer available; outputs are forced to all research variables"
+        self.outVarsLabel.setToolTip(new_tooltip)
+
+        # Force output variable selections
+        self.all_chkboxes = [
+            self.tempFBox, self.tempCBox, self.dpFBox, self.dpCBox, self.rhBox, self.mmrBox, \
+            self.vcBox, self.vpBox, self.gamBox, self.rhoBox, self.voltBox, self.cntBox
+        ]
+        self.selected = [
+            self.tempFBox, self.tempCBox, self.dpFBox, self.dpCBox, self.rhBox,\
+            self.mmrBox, self.vcBox, self.vpBox, self.gamBox, self.rhoBox,
+        ]
         self.set_selected()
+        self.lock_options(tooltip=new_tooltip)  # added tooltip to describe changes
+
+        # Setup non-checkbox item defaults
         self.set_defaults()
         self.toolButton.clicked.connect(self.toolButtonClicked)
 
@@ -32,6 +47,12 @@ class RecGUI(QtWidgets.QDialog, rgui.Ui_dialog):
     def set_selected(self):
         for box in self.selected:
             box.setChecked(True)
+
+    def lock_options(self, tooltip=None):
+        for box in self.all_chkboxes:
+            box.setEnabled(False)
+            if tooltip is not None:
+                box.setToolTip(tooltip)
 
     def set_defaults(self):
         # Record time
@@ -63,36 +84,6 @@ class SetCondGUI(QtWidgets.QDialog, scgui.Ui_Dialog):
 
         self.setPressChkBox.stateChanged.connect(self.pressToggled)  # set pressure changes state
         self.setTempChkBox.stateChanged.connect(self.tempToggled) # set temperature changes state
-
-# Section probably not needed
-    # def getPress(self):
-    #     text = str(self.pressUnitDD.currentText())
-    #     print('text = '.format(text))
-    #
-    #     # Convert to PSI
-    #     self.setPressVal = float(self.pressLineEdit.text())
-    #     if text == 'Pa':
-    #         self.setPressVal = self.setPressVal * 1.450377e-4
-    #     elif text == 'kPa':
-    #         self.setPressVal = self.setPressVal * 0.1450377
-    #     elif text == 'mb':
-    #         self.setPressVal = self.setPressVal * 0.01450377
-    #     elif text == 'inHg':
-    #         self.setPressVal = self.setPressVal * 0.491154
-    #
-    #
-    # def getTemp(self):
-    #     text = str(self.tempUnitDD.currentText())
-    #
-    #     # Convert to degrees Fahrenheit
-    #     self.setTempVal = float(self.tempLineEdit.text())
-    #     if text == 'degC':
-    #         self.setTempVal = self.setTempVal*1.8 + 32
-    #     elif text == 'degR':
-    #         self.setTempVal = self.setTempVal + 459.67
-    #     elif text == 'K':
-    #         self.setTempVal = (self.setTempVal-273.15)*1.8 + 32
-
     def addDDOptions(self):
         ''' Add all defaults and options to all dropdown boxes'''
         # Set default values
@@ -173,7 +164,6 @@ fname = 'humidity_cart_{}'.format(time.strftime('%Y%m%d'))   # Filename of outpu
 outLoc = os.getcwd()     # Location of output file
 
 
-
 ## For the main window gui
 # The following allows you to access the auto-generated gui from pyuic5
 from GUIs import basic_GUI as gui
@@ -182,7 +172,6 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         # super(MainUiClass, self).__init__(parent)
         super().__init__(parent)
         self.setupUi(self)
-#----------------------------------------------------------------------------------
 
         # Initialize variables
         self.pressure = 14.696  # psi, reference static pressure (set to SL press for now)
@@ -250,12 +239,19 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         # Initialize instance of RecGUI and default checked boxes
         self.rdlg = RecGUI(self)
-        self.checked = [self.rdlg.tempFBox,self.rdlg.dpFBox,self.rdlg.rhBox,self.rdlg.mmrBox,self.rdlg.vcBox]
-        self.chkboxes = [self.rdlg.tempFBox,self.rdlg.tempCBox,self.rdlg.dpFBox,self.rdlg.dpCBox,self.rdlg.rhBox,\
+        self.checked = [
+            self.rdlg.tempFBox,self.rdlg.tempCBox,self.rdlg.dpFBox,self.rdlg.dpCBox,self.rdlg.rhBox,\
+            self.rdlg.mmrBox,self.rdlg.vcBox,self.rdlg.vpBox,self.rdlg.gamBox,self.rdlg.rhoBox,
+        ]
+        self.chkboxes = [
+            self.rdlg.tempFBox,self.rdlg.tempCBox,self.rdlg.dpFBox,self.rdlg.dpCBox,self.rdlg.rhBox,\
             self.rdlg.mmrBox,self.rdlg.vcBox,self.rdlg.vpBox,self.rdlg.gamBox,self.rdlg.rhoBox,self.rdlg.voltBox,\
-            self.rdlg.cntBox]
-        self.options = ['Temperature degF','Temperature degC','Dew Point degF','Dew Point degC','Relative Humidity',\
-            'Mass Mixing Ratio','Vapor Concentration','Vapor Pressure','Gamma','Density','Voltage','Counts']
+            self.rdlg.cntBox
+        ]
+        self.options = [
+            'Temperature degF','Temperature degC','Dew Point degF','Dew Point degC','Relative Humidity',\
+            'Mass Mixing Ratio','Vapor Concentration','Vapor Pressure','Gamma','Density','Voltage','Counts'
+        ]
 
     def setupImages(self):
         # Instead of changing directory, just get it and apply to each LED image
@@ -973,7 +969,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 self.rdlg.outLocEdit.setText(csvals[4])
 
                 # Apply checkboxes
-                self.chkboxes(csvals[5:])
+                # self.chkboxes(csvals[5:])  # commenting this out to force rec outputs (2024-07-23)
 
                 f.close()
 
