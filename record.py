@@ -6,13 +6,211 @@ import time, datetime, os
 import common_def
 from pathlib import Path
 from PyQt5 import QtGui, QtCore
+from PyQt5.QtWidgets import QMessageBox
+import xlwings as xw
 
 
 class Recording:
     date = time.strftime('%Y%m%d')
+    def __init__(self, record_length=10, filename='humidity_cart_{}.xlsx'.format(date),\
+                  init_reading_number=1, headers=[]):
+        super(Recording, self).__init__()
+        '''Set input variables based on inputs
+            record_length = length in seconds of each recording
+            filename = name of the file to be output
+            init_reading_number = starting reading number'''
+        iheaders = ['Reading','DateTime']  # start with initial headers
+        self.headers = iheaders + headers
+        self.record_length = record_length
+        self.filename = filename
+        self.fileLoc = os.getcwd()
+        self.getFullFile()
+        self.connectWorkbook()
+
+        # Set adjustable self variables
+        self.recEnabled = False
+        self.continuationLC = False
+        self.continuationSS = False
+
+        self.time_start = time.time()       # initialize time start
+        self.time_end = self.time_start+self.record_length
+        self.avg_on = True                  # turn on averaging
+
+    def getFullFile(self):
+        # Encourage the use of .xls[x]
+        if '.xls' not in self.filename.lower():
+            date = time.strftime('%Y%m%d')
+
+            msg = common_def.error_msg()
+            msg.setWindowTitle("FILE NAME ERROR")
+            msg.setText("Please insure that the desired filename has a .xls or .xlsx extension. Setting " +
+                "filename and path to default.")
+            msg.exec_()
+
+            self.full_filename = Path(self.fileLoc) / 'humidity_cart_{}.xlsx'.format(date)
+        else:
+            # Combine all necessary elements of filename into full_filename
+            self.full_filename = Path(self.fileLoc) / self.filename
+
+    def connectWorkbook(self):
+        # Establish a connection to the workbook, set header (if applicable), and set reading number
+        if os.path.isfile(self.full_filename):
+            # Connect to existing workbook
+            self.wb = xw.Book(self.full_filename)
+            self.sht = self.wb.sheets[0]
+
+            # Get latest reading
+            self.rdg = int(self.sht.used_range.value[-1][0])
+
+        else:
+            # Start a new workbook and set header
+            self.wb = xw.Book()
+            self.sht = self.wb.sheets[0]
+            self.sht["A1"].value = [self.headers]
+
+            # Set reading to 1
+            self.rdg = 1
+
+            # Save new workbook
+            self.save_data()
+
+    def save_data(self):
+        # Easy way to quickly save newly written data
+        self.wb.save(self.full_filename)
+
+    def captureDataSS(self, values):
+        '''Captures data for the spectra sensor.'''
+        # Copy the values so that we don't modify the original list
+        vals = values.copy()
+
+        # Spectra Sensor Data ------------------------------------------
+        # Indicate if recording is enabled and if this is a continuation
+        if self.recEnabled and time.time()<=self.time_end:
+            # Insert reading num and time into dataset
+            vals.insert(0,datetime.datetime.now())
+            vals.insert(0,self.rdg)
+
+            if self.continuationSS:
+                pass   # This is a continuation so we must append the data to the list
+
+            else:
+                # This is the first point to record, so we must create the new variable to store data
+                self.dataSS = []   # reinitialize to clear data from previous recording
+
+                # Turn ON continuation mode
+                self.continuationSS = True
+
+            self.dataSS.append(vals)
+
+
+        else:   #  we are not in record mode
+            if self.continuationSS:  # we just came out of a record
+                self.continuationSS = False   # Force out of continuation
+
+                # Go to interpret output function
+                try:
+                    self.interpretOutput(self.dataSS, 'WVSS')
+
+                    # Notate info about recording
+                    print('WVSS Recording Captured')
+                    print('WVSS Data Length = {} rows in {} seconds'.format(len(self.dataSS), time.time()-self.time_start))
+
+                except:  # file is open cannot write so throw an error
+                    msg = common_def.error_msg()
+                    msg.setText('DATA NOT WRITTEN TO FILE:\n\n{} is open; '.format(self.filename_ext) + \
+                                'please close the file before continuing')
+                    msg.exec_()
+
+            self.continuationSS = False  # turn off continuation
+
+    def captureDataLC(self, values):
+        '''Captures data for the humidity generator.'''
+        # Copy the values so that we don't modify the original list
+        vals = values.copy()
+
+        # Humidity Generator Data ------------------------------------------
+        # Indicate if recording is enabled and if this is a continuation
+        if self.recEnabled and time.time()<=self.time_end:
+            # Insert reading num and time into dataset
+            vals.insert(0,datetime.datetime.now())
+            vals.insert(0,self.rdg)
+
+            if self.continuationLC:
+                pass   # This is a continuation so we must append the data to the list
+
+            else:
+                # This is the first point to record, so we must create the new variable to store data
+                self.dataLC = []   # reinitialize to clear data from previous recording
+
+                # Turn ON continuation mode
+                self.continuationLC = True
+
+            self.dataLC.append(vals)
+
+
+        else:   #  we are not in record mode
+            if self.continuationLC:  # we just came out of a record
+                self.continuationLC = False   # Force out of continuation
+
+                # Go to interpret output function
+                try:
+                    self.interpretOutput(self.dataLC, 'HumGen')
+
+                    # Notate info about recording
+                    print('HumGen Recording Captured')
+                    print('HumGen Data Length = {} rows in {} seconds'.format(len(self.dataLC), time.time()-self.time_start))
+
+                except:  # file is open cannot write so throw an error
+                    msg = common_def.error_msg()
+                    msg.setText('DATA NOT WRITTEN TO FILE:\n\n{} is open; '.format(self.filename_ext) + \
+                                'please close the file before continuing')
+                    msg.exec_()
+
+
+            self.continuationLC = False  # turn off continuation
+
+    def interpretOutput(self, data, src):
+        '''After reading has been captured, this method evaluates what to do with it.'''
+        # Convert to dataframe
+        out_df = self.convertToDataFrame(data, src)
+
+    def convertToDataFrame(self, dataArray, src):
+        print(src)
+        print(dataArray)
+        print("------------")
+        return
+
+        # Create initial dataset from dataLC and dataSS
+        df = pd.DataFrame(dataArray, columns=self.headers)
+
+        # Determine what to do with the data based on averaging
+        if self.avg_on:
+            # Work with time first
+            most_recent = df.DateTime.max()   # Take max date for use in averaged data
+            date = most_recent.strftime('%Y-%m-%d')
+            Time = most_recent.strftime('%H:%M:%S.%f')
+
+            rec_time = time.time() - self.time_start
+
+            # Prep to combine averaged data
+            row_name = 'mean'
+            df.loc[row_name] = df.mean(axis=0)   # Average all columns in the last row of the dataframe
+            ini_cols = pd.DataFrame({'Reading': [self.rdg], 'Source': [src], 'Seconds Avg': [rec_time],\
+                           'Date': [date], 'Time': [Time]}, index=[row_name])  # Initial (fixed) columns
+            sel_cols = df.iloc[[-1],2:]   # Last row and Columns that were selected by the user
+            out_df = pd.concat([ini_cols,sel_cols], axis=1, sort=False)
+        else:
+            out_df = df
+
+        return out_df
+
+
+
+class Recording_OLD:
+    date = time.strftime('%Y%m%d')
     def __init__(self, record_length=10, filename='humidity_cart_{}'.format(date),\
                   init_reading_number=1):
-        super(Recording, self).__init__()
+        super(Recording_OLD, self).__init__()
         '''Set input variables based on inputs
             record_length = length in seconds of each recording
             filename = name of the file to be output

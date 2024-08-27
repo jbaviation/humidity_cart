@@ -160,7 +160,7 @@ comLC = 'COM4'   # Default LiCor COM port
 comSS = 'COM1'  # Default SS COM port
 
 avgLength = 10   # Number of seconds to record
-fname = 'humidity_cart_{}'.format(time.strftime('%Y%m%d'))   # Filename of output file
+fname = 'humidity_cart_{}.xlsx'.format(time.strftime('%Y%m%d'))   # Filename of output file
 outLoc = os.getcwd()     # Location of output file
 
 
@@ -218,12 +218,10 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.use_temp_counts = False
 
         # Default recording parameters
-        self.rec_defaults = ['Pressure']
+        self.rec_defaults = ['Temperature degF','Temperature degC','Dew Point degF','Dew Point degC','Relative Humidity',\
+            'Mass Mixing Ratio','Vapor Concentration','Vapor Pressure','Gamma','Density']
         self.rec_options = ['Temperature degF','Temperature degC','Dew Point degF','Dew Point degC','Relative Humidity',\
             'Mass Mixing Ratio','Vapor Concentration','Vapor Pressure','Gamma','Density','Voltage','Counts']
-
-        # Initialize instance of Recording class
-        self.rec = record.Recording()
 
         # Generate the default offLED
         self.statusLED.setPixmap(self.offLED)
@@ -287,7 +285,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         '''Setup record button capability'''
         self.statusLED.setPixmap(self.greenLED)
 
-        self.rec.check_for_latest_reading()  # Look for latest reading in the file and increment
+        self.rec.rdg += 1  # Look for latest reading in the file and increment
         self.rec.recEnabled = True          # Indicate we are in record mode
         self.rec.time_start = time.time()   # Track start time with button push
         self.rec.time_end = self.rec.time_start + self.rec.record_length
@@ -355,11 +353,12 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             fname = self.rdlg.filenameEdit.text()
             outLoc = self.rdlg.outLocEdit.text()
 
-            # Set record length, filename and filelocation from the dialog box
-            self.rec.record_length = avgLength
-            self.rec.filename = fname; self.rec.fileLoc = outLoc
-            self.rec.getFullFile()
-            self.rec.check_for_latest_reading()
+            # Initialize instance of Recording class
+            self.rec = record.Recording(
+                record_length = avgLength,
+                filename = fname,
+                headers = self.rec_defaults,  # Data output is now fixed so headers can be hardcoded
+            )  
 
             # Set line edit values
             self.recLengthEdit.setText(str(self.rec.record_length))
@@ -385,8 +384,8 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
                 # Set proper headers
                 # print(self.rec_options)
-                self.rec.headers = self.rec.iheaders + self.rec_defaults + self.rec_options  # set the headers
-                print('rec.headers = {}'.format(self.rec.headers))
+                # self.rec.headers = self.rec.iheaders + self.rec_defaults + self.rec_options  # set the headers
+                # print('rec.headers = {}'.format(self.rec.headers))
             else:
                 self.recordButton.setEnabled(False)
                 self.recordButton.setToolTip('You are not configured press Ctrl+P first to ' +
@@ -798,7 +797,7 @@ class MainUiClass(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def rec_data(self,TddegF,TddegC,mmr,rh,counts,voltage,ppmv,gam,rho,pv):
         # Loop to determine what values to put in dataset
         rec_values = []
-        rec_opts = self.rec_defaults + self.rec_options  # Add temp and press as defaults
+        rec_opts = self.rec_defaults + ['Pressure']  # Add temp and press as defaults
         for text in rec_opts:
             if text == 'Dew Point degF':
                 rec_values.append(TddegF)
